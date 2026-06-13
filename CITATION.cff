@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this evaluation protocol, please cite the software release and the associated manuscript."
+title: "BlindSpot Seismic Denoising Evaluation Protocol"
+version: "1.0.0-rc1"
+date-released: "2026-06-14"
+authors:
+  - name: "Anonymous manuscript authors"
+preferred-citation:
+  type: article
+  title: "A Controlled Evaluation Protocol for Self-Supervised Three-Component Blind-Spot Seismic Denoising"
+  authors:
+    - name: "Anonymous manuscript authors"
+  year: 2026
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.TBD"
+repository-code: "https://github.com/anonymous-review/blindspot-seismic-denoising-protocol"
+license: "MIT"

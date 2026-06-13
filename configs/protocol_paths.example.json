@@ -1,0 +1,9 @@
+{
+  "workspace_root": "C:/path/to/seismic denoiser",
+  "waveform_root": "C:/path/to/downloaded/raspberryshake/windows",
+  "splits_dir": "splits",
+  "indices_dir": "indices",
+  "per_case_metrics_dir": "per_case_metrics",
+  "output_dir": "runs/example_baseline",
+  "random_seed": 42
+}

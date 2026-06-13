@@ -1,0 +1,24 @@
+{
+  "oracle_free_required_columns": [
+    "case_id",
+    "station_template",
+    "method",
+    "output_vs_clean_snr",
+    "corr_z",
+    "amp_ratio_clean",
+    "background_suppression_db"
+  ],
+  "final_real_required_columns": [
+    "event_id",
+    "station",
+    "method",
+    "snr_gain",
+    "amp_ratio",
+    "delay_s"
+  ],
+  "notes": [
+    "Continuous clean-SNR is reported as gain relative to Noisy or Identity.",
+    "Correlation is Z-component normalized cross-correlation after best lag.",
+    "Station-level bootstrap should aggregate differences within station before resampling stations."
+  ]
+}
