@@ -1,0 +1,4 @@
+metric,ordered_methods,values,nondecreasing
+clean_snr_gain_vs_identity_mean,Identity;OracleRecovery30;OracleRecovery50;OracleRecovery70;OracleRecovery90,0;3.09804;6.0206;10.4576;20,True
+corr_z_mean,Identity;OracleRecovery30;OracleRecovery50;OracleRecovery70;OracleRecovery90,0.691856;0.786762;0.859064;0.932765;0.990183,True
+background_suppression_db_mean,Identity;OracleRecovery30;OracleRecovery50;OracleRecovery70;OracleRecovery90,-1.18917e-13;3.09804;6.0206;10.4576;20,True

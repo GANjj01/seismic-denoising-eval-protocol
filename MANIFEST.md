@@ -66,6 +66,21 @@
 - `diagnostics/noise_correlation_diagnostic_summary.csv`
 - `diagnostics/noise_correlation_by_station.csv`
 - `diagnostics/covnorm_region_consistency.csv`
+- `diagnostics/recovery_probe/README.md`
+- `diagnostics/recovery_probe/oracle_free_recovery_probe.py`
+- `diagnostics/recovery_probe/recovery_probe_summary.csv`
+- `diagnostics/recovery_probe/recovery_probe_by_snr.csv`
+- `diagnostics/recovery_probe/recovery_probe_station_bootstrap_vs_identity.csv`
+- `diagnostics/recovery_probe/recovery_probe_monotonic_checks.csv`
+- `diagnostics/recovery_probe/recovery_probe_detail.csv`
+- `diagnostics/polarization_rescore/README.md`
+- `diagnostics/polarization_rescore/oracle_free_polarization_rescore.py`
+- `diagnostics/polarization_rescore/polarization_rescore_summary.csv`
+- `diagnostics/polarization_rescore/polarization_rescore_by_snr.csv`
+- `diagnostics/polarization_rescore/polarization_station_bootstrap_vs_identity.csv`
+- `diagnostics/polarization_rescore/polarization_covnorm_pair_bootstrap.csv`
+- `diagnostics/polarization_rescore/polarization_rescore_detail.csv`
+- `diagnostics/polarization_rescore/covnorm_dcov_noisy_vs_clean.png`
 
 ## Environments
 

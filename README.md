@@ -57,7 +57,7 @@ seismic-denoising-eval-protocol/
   splits/                         frozen 54-station split manifests
   indices/                        event/window identifiers, no waveform data
   per_case_metrics/               derived report-card tables
-  diagnostics/                    noise-correlation and regional summaries
+  diagnostics/                    noise, recovery-probe, polarization, and regional summaries
   baselines/                      notes for identity/adversarial/N2V controls
   configs/                        schema and example path config
   environments/                   conda environment exports
@@ -111,6 +111,8 @@ Key released derived tables:
 - `per_case_metrics/station_bootstrap_vs_identity.csv`
 - `diagnostics/noise_correlation_diagnostic_summary.csv`
 - `diagnostics/covnorm_region_consistency.csv`
+- `diagnostics/recovery_probe/`
+- `diagnostics/polarization_rescore/`
 - `training/covnorm_case_study_manifest.md`
 - `training/e1_checkpoint_ranking/`
 - `training/e4_checkpoint_selection_stability/`
