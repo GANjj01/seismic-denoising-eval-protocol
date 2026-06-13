@@ -1,4 +1,4 @@
-# BlindSpot Seismic Denoising Evaluation Protocol
+# seismic-denoising-eval-protocol
 
 Release candidate for the paper:
 
@@ -46,7 +46,7 @@ per-case table without touching raw waveforms or training checkpoints.
 ## Repository Layout
 
 ```text
-blindspot_eval_protocol/
+seismic-denoising-eval-protocol/
   src/blindspot_eval_protocol/    reusable metrics, baselines, report-card code
   scripts/                        smoke test and FDSN fetch helper
   splits/                         frozen 54-station split manifests
@@ -108,14 +108,15 @@ The paper's full training and checkpoint-selection reruns still require the
 original local training workspace and waveform downloads.  The environment
 exports are in `environments/`.
 
-## Zenodo Release Plan
+## Zenodo Release Checklist
 
-For submission, create an anonymous review repository from the release-candidate
-staging folder, then:
+For submission, create the repository from the release-candidate staging folder,
+then:
 
 1. connect the GitHub repository to Zenodo;
 2. tag `v1.0.0` as the paper-supporting release;
 3. cite the Zenodo concept DOI in the manuscript;
 4. keep the version DOI for exact reproducibility of the submitted state.
 
-Update `CITATION.cff` with the final DOI and paper metadata before release.
+`CITATION.cff` is a separate repository-level citation file.  Update it with
+the final DOI and paper metadata before the public release.
