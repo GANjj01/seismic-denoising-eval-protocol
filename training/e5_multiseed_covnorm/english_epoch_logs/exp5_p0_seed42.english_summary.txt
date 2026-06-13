@@ -1,0 +1,20 @@
+﻿Run: exp5_p0_seed42
+Lambda: 0.0
+Seed: 42
+Logged epochs: 20
+Finished launcher cleanly: no
+Checkpoint epochs available: 20
+Selected development epoch: 15
+Selected method label: exp5_p0_seed42_e015
+Selection rule: choose the checkpoint on the frozen development set using the preregistered development rule; do not use final-test outcomes for selection.
+First epoch with any gradient spike count above zero: 10
+First preregistered divergence epoch: 11
+Epoch-10 LayerNorm gamma mean: 1.3439
+Epoch-10 gradient spike count (>10): 3
+Epoch-10 max gradient norm: 14.56
+Final logged LayerNorm gamma mean: 1.547
+Final logged gradient spike count (>10): 3000
+Final logged max gradient norm: 1924410.38
+
+Machine-specific paths from the original launcher logs are intentionally omitted from this English audit log.
+The accompanying CSV file gives the per-epoch numeric trace used for Figure 6 and table-level dynamics summaries.

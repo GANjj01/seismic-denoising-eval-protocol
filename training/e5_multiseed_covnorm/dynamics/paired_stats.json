@@ -1,0 +1,10 @@
+﻿{
+  "n_pairs": 3,
+  "gamma_delta_lambda05_minus_lambda0_mean": -0.32800000000000007,
+  "gamma_delta_lambda05_minus_lambda0_min": -0.43220000000000014,
+  "gamma_delta_lambda05_minus_lambda0_max": -0.254,
+  "all_gamma_deltas_negative": true,
+  "sign_test_one_sided_p_lambda05_lower": 0.125,
+  "sign_test_two_sided_p": 0.25,
+  "divergence_rule": "first epoch with spike_count_gt10>=100 or gnorm_max>=100"
+}

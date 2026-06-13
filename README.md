@@ -2,6 +2,9 @@
 
 [![DOI](https://zenodo.org/badge/1268525598.svg)](https://doi.org/10.5281/zenodo.20681569)
 
+Code license: MIT.  Released split files, case indices, diagnostic summaries,
+and derived metric tables: CC-BY-4.0.
+
 Release candidate for the paper:
 
 > A Controlled Evaluation Protocol for Self-Supervised Three-Component Blind-Spot Seismic Denoising
@@ -58,18 +61,21 @@ seismic-denoising-eval-protocol/
   baselines/                      notes for identity/adversarial/N2V controls
   configs/                        schema and example path config
   environments/                   conda environment exports
-  training/                       pointer to the multiseed CovNorm bundle
+  training/                       CovNorm case-study provenance tables
 ```
 
 The neighboring folder `../multiseed_covnorm_training` contains the
-preregistered E5 training bundle.  It is kept separate because model training
-is not the reusable report-card interface.
+preregistered E5 training code bundle.  It is kept separate because model
+training is not the reusable report-card interface.  The released `training/`
+folder in this repository contains the public CovNorm case-study provenance
+needed to audit checkpoint ranking, checkpoint-selection stability, and
+multiseed training dynamics.
 
 ## Data Policy
 
-- Code is intended for release under MIT.
+- Code is released under MIT.
 - Released split files, case indices, diagnostic summaries, and metric tables
-  are intended for release under CC-BY-4.0.
+  are released under CC-BY-4.0.
 - Raw MiniSEED waveforms remain with the Raspberry Shake AM network/FDSN data
   providers and are not included.
 
@@ -105,20 +111,28 @@ Key released derived tables:
 - `per_case_metrics/station_bootstrap_vs_identity.csv`
 - `diagnostics/noise_correlation_diagnostic_summary.csv`
 - `diagnostics/covnorm_region_consistency.csv`
+- `training/covnorm_case_study_manifest.md`
+- `training/e1_checkpoint_ranking/`
+- `training/e4_checkpoint_selection_stability/`
+- `training/e5_multiseed_covnorm/`
 
-The paper's full training and checkpoint-selection reruns still require the
-original local training workspace and waveform downloads.  The environment
-exports are in `environments/`.
+The release supports several reproducibility levels:
 
-## Zenodo Release Checklist
+| Level | What users can do | Raw waveforms needed? | Training weights needed? |
+| --- | --- | --- | --- |
+| Smoke test | Reproduce the report-card summarizer on released per-case tables | No | No |
+| Metric audit | Recompute manuscript report-card summaries and station-level contrasts from derived tables | No | No |
+| Waveform scoring | Fetch AM/FDSN waveforms and score a new baseline through the same metric interface | Yes | No, unless the baseline requires them |
+| CovNorm case-study audit | Inspect seeds, selected epochs, E1 ranking divergence, E4 selection stability, and E5 dynamics/performance summaries | No for released summaries; waveform downloads only for rerunning scores | No |
+| Full CovNorm retraining | Fully rerun the CovNorm training matrix | Yes | Optional; retraining can start from scratch |
 
-For submission, create the repository from the release-candidate staging folder,
-then:
+The environment exports are in `environments/`.  Full CovNorm retraining is not
+a one-command workflow in this evaluation-protocol release, but the
+training-side logs and checkpoint-selection summaries used by the manuscript
+are public under `training/`.
 
-1. connect the GitHub repository to Zenodo;
-2. tag `v1.0.0` as the paper-supporting release;
-3. cite the Zenodo concept DOI in the manuscript;
-4. keep the version DOI for exact reproducibility of the submitted state.
+## Citation And Archiving
 
-`CITATION.cff` is a separate repository-level citation file.  Update it with
-the final DOI and paper metadata before the public release.
+The repository is archived on Zenodo.  Cite the concept DOI for the project
+record and the version DOI for the exact submitted state.  `CITATION.cff` is a
+separate repository-level citation file and records the version DOI.

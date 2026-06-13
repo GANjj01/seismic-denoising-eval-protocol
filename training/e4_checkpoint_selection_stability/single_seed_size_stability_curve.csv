@@ -1,0 +1,17 @@
+﻿run,scenario,m,n_repeats,full_method,full_epoch,mode_method,mode_epoch,mode_frequency,full_method_frequency,top2_epochs,top2_frequency,n_unique_selected_epochs
+p0,stratified_bootstrap,5,2000,p0_e06,6,p0_e06,6,0.459,0.459,6 8,0.7945,6
+p0,stratified_bootstrap,10,2000,p0_e06,6,p0_e06,6,0.5175,0.5175,6 8,0.936,5
+p0,stratified_bootstrap,15,2000,p0_e06,6,p0_e06,6,0.542,0.542,6 8,0.9775,5
+p0,stratified_bootstrap,20,2000,p0_e06,6,p0_e06,6,0.541,0.541,6 8,0.9885,5
+p0,stratified_bootstrap,25,2000,p0_e06,6,p0_e06,6,0.549,0.549,6 8,0.996,4
+p01,stratified_bootstrap,5,2000,p01_e07,7,p01_e07,7,0.7815,0.7815,7 2,0.8825,7
+p01,stratified_bootstrap,10,2000,p01_e07,7,p01_e07,7,0.9185,0.9185,7 2,0.955,6
+p01,stratified_bootstrap,15,2000,p01_e07,7,p01_e07,7,0.9585,0.9585,7 8,0.975,5
+p01,stratified_bootstrap,20,2000,p01_e07,7,p01_e07,7,0.979,0.979,7 8,0.987,5
+p01,stratified_bootstrap,25,2000,p01_e07,7,p01_e07,7,0.9905,0.9905,7 8,0.996,4
+p05,stratified_bootstrap,5,2000,p05_e16,16,p05_e16,16,0.418,0.418,16 17,0.5345,15
+p05,stratified_bootstrap,10,2000,p05_e16,16,p05_e16,16,0.5395,0.5395,16 17,0.6765,11
+p05,stratified_bootstrap,15,2000,p05_e16,16,p05_e16,16,0.584,0.584,16 17,0.7385,10
+p05,stratified_bootstrap,20,2000,p05_e16,16,p05_e16,16,0.629,0.629,16 17,0.7805,9
+p05,stratified_bootstrap,25,2000,p05_e16,16,p05_e16,16,0.6615,0.6615,16 17,0.8035,10
+

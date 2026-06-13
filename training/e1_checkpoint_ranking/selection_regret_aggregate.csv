@@ -1,0 +1,4 @@
+﻿comparison,n_runs,mean_positive_loss_snr_db,mean_positive_loss_amp_ratio,median_positive_loss_snr_db,median_positive_loss_amp_ratio
+val_loss_minus_development_rule,3,0.6162214183349681,0.07542074982936543,0.1921419478669918,0.026746921117096034
+val_loss_minus_final_oracle_rule,3,0.5796085187375296,0.07640369663143814,0.1921419478669918,0.026746921117096034
+

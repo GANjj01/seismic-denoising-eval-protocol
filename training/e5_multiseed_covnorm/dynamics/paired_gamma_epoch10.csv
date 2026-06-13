@@ -1,0 +1,5 @@
+﻿seed,gamma_epoch10_lambda0,gamma_epoch10_lambda05,delta_lambda05_minus_lambda0,lambda0_divergence_epoch,lambda05_divergence_epoch
+42,1.3439,1.0461,-0.29780000000000006,11,
+43,1.3039,1.0499,-0.254,12,
+44,1.475,1.0428,-0.43220000000000014,11,
+

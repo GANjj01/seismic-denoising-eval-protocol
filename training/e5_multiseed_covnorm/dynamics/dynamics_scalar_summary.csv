@@ -1,0 +1,8 @@
+﻿run_name,lambda_pol,seed,logged_epochs,first_spike_gt0_epoch,first_divergence_epoch,gamma_mean_epoch10,spike_count_epoch10,gnorm_max_epoch10,final_logged_gamma_mean,final_logged_spike_count,final_logged_gnorm_max
+exp5_p0_seed42,0.0,42,20,10,11,1.3439,3,14.56,1.547,3000,1924410.38
+exp5_p0_seed43,0.0,43,15,11,12,1.3039,0,2.9,1.9443,3,12.56
+exp5_p0_seed44,0.0,44,14,10,11,1.475,15,58.52,1.8713,2929,1305.26
+exp5_p05_seed42,0.5,42,30,,,1.0461,0,2.22,1.0947,0,1.65
+exp5_p05_seed43,0.5,43,30,,,1.0499,0,1.95,1.092,0,1.66
+exp5_p05_seed44,0.5,44,30,26,,1.0428,0,1.04,1.3042,8,18.41
+

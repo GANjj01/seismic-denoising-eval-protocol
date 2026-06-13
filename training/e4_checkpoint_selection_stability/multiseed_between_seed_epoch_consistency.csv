@@ -1,0 +1,12 @@
+﻿lambda_pol,lambda_label,m,seed_mode_epochs,seed_full_epochs,mode_consistency,full_selection_consistency,unique_mode_epochs,unique_full_epochs
+0.0,lambda=0,5,seed42:e15; seed43:e8; seed44:e7,seed42:e15; seed43:e8; seed44:e13,dispersed,dispersed,7 8 15,8 13 15
+0.0,lambda=0,10,seed42:e15; seed43:e8; seed44:e7,seed42:e15; seed43:e8; seed44:e13,dispersed,dispersed,7 8 15,8 13 15
+0.0,lambda=0,15,seed42:e15; seed43:e8; seed44:e7,seed42:e15; seed43:e8; seed44:e13,dispersed,dispersed,7 8 15,8 13 15
+0.0,lambda=0,20,seed42:e15; seed43:e8; seed44:e7,seed42:e15; seed43:e8; seed44:e13,dispersed,dispersed,7 8 15,8 13 15
+0.0,lambda=0,25,seed42:e15; seed43:e8; seed44:e7,seed42:e15; seed43:e8; seed44:e13,dispersed,dispersed,7 8 15,8 13 15
+0.5,lambda=0.5,5,seed42:e20; seed43:e22; seed44:e14,seed42:e20; seed43:e22; seed44:e14,dispersed,dispersed,14 20 22,14 20 22
+0.5,lambda=0.5,10,seed42:e20; seed43:e22; seed44:e14,seed42:e20; seed43:e22; seed44:e14,dispersed,dispersed,14 20 22,14 20 22
+0.5,lambda=0.5,15,seed42:e20; seed43:e22; seed44:e14,seed42:e20; seed43:e22; seed44:e14,dispersed,dispersed,14 20 22,14 20 22
+0.5,lambda=0.5,20,seed42:e20; seed43:e22; seed44:e14,seed42:e20; seed43:e22; seed44:e14,dispersed,dispersed,14 20 22,14 20 22
+0.5,lambda=0.5,25,seed42:e20; seed43:e22; seed44:e14,seed42:e20; seed43:e22; seed44:e14,dispersed,dispersed,14 20 22,14 20 22
+

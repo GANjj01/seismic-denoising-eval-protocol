@@ -1,0 +1,8 @@
+﻿lambda_pol,lambda_label,seed,target_m,mode_epoch_at_target_m,full_epoch_at_target_m,full_epoch_frequency_at_target_m,mode_frequency_at_target_m,selected_epoch_q10_at_target_m,selected_epoch_q90_at_target_m,selected_epoch_i80_width_at_target_m,mode_epoch_min,mode_epoch_max,mode_epoch_mid,mode_epoch_by_m,full_epoch_min,full_epoch_max,full_epoch_by_m
+0.0,lambda=0,42,25,15,15,0.8315,0.8315,15,16,1,15,15,15.0,m=5:e15; m=10:e15; m=15:e15; m=20:e15; m=25:e15,15,15,m=5:e15; m=10:e15; m=15:e15; m=20:e15; m=25:e15
+0.0,lambda=0,43,25,8,8,0.6065,0.6065,7,8,1,8,8,8.0,m=5:e8; m=10:e8; m=15:e8; m=20:e8; m=25:e8,8,8,m=5:e8; m=10:e8; m=15:e8; m=20:e8; m=25:e8
+0.0,lambda=0,44,25,7,13,0.375,0.4885,7,13,6,7,7,7.0,m=5:e7; m=10:e7; m=15:e7; m=20:e7; m=25:e7,13,13,m=5:e13; m=10:e13; m=15:e13; m=20:e13; m=25:e13
+0.5,lambda=0.5,42,25,20,20,0.577,0.577,20,28,8,20,20,20.0,m=5:e20; m=10:e20; m=15:e20; m=20:e20; m=25:e20,20,20,m=5:e20; m=10:e20; m=15:e20; m=20:e20; m=25:e20
+0.5,lambda=0.5,43,25,22,22,0.512,0.512,17,23,6,22,22,22.0,m=5:e22; m=10:e22; m=15:e22; m=20:e22; m=25:e22,22,22,m=5:e22; m=10:e22; m=15:e22; m=20:e22; m=25:e22
+0.5,lambda=0.5,44,25,14,14,0.7665,0.7665,13,15,2,14,14,14.0,m=5:e14; m=10:e14; m=15:e14; m=20:e14; m=25:e14,14,14,m=5:e14; m=10:e14; m=15:e14; m=20:e14; m=25:e14
+

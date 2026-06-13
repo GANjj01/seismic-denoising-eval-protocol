@@ -1,0 +1,8 @@
+﻿run_name,lambda_pol,seed,selected_epoch,method,checkpoint,best_snr_gain_mean_in_run,selected_snr_gain_mean,selected_amp_ratio_mean,retained_within_2db,available_epochs
+exp5_p05_seed42,0.5,42,20,exp5_p05_seed42_e020,<TRAINING_WORKSPACE>\checkpoints_exp5_p05_seed42\epoch_020.pt,-1.4995270460973997,-1.9465150857160314,0.5737424430242207,27,30
+exp5_p05_seed43,0.5,43,22,exp5_p05_seed43_e022,<TRAINING_WORKSPACE>\checkpoints_exp5_p05_seed43\epoch_022.pt,-1.478449624177874,-2.098933379472244,0.612491696006906,29,30
+exp5_p05_seed44,0.5,44,14,exp5_p05_seed44_e014,<TRAINING_WORKSPACE>\checkpoints_exp5_p05_seed44\epoch_014.pt,-1.6092265284205831,-2.015919703896065,0.5674656006026273,27,30
+exp5_p0_seed42,0.0,42,15,exp5_p0_seed42_e015,<TRAINING_WORKSPACE>\checkpoints_exp5_p0_seed42\epoch_015.pt,2.337997384078155,1.5058457406829138,0.2716845016111504,2,20
+exp5_p0_seed43,0.0,43,8,exp5_p0_seed43_e008,<TRAINING_WORKSPACE>\checkpoints_exp5_p0_seed43\epoch_008.pt,-0.6029184817381988,-0.7169553851581649,0.4829312670217184,12,15
+exp5_p0_seed44,0.0,44,13,exp5_p0_seed44_e013,<TRAINING_WORKSPACE>\checkpoints_exp5_p0_seed44\epoch_013.pt,-0.8231943411286116,-2.233060749382777,0.48630479521361797,14,14
+

@@ -1,0 +1,8 @@
+﻿run_name,lambda_pol,seed,log_path,checkpoint_dir,allow_nondeterministic_gpu,strict_gpu_algorithms_false,finished,return_code,logged_epochs,checkpoint_epoch_count,history_json_exists
+exp5_p0_seed42,0.0,42,<WORKSPACE>\experiments\results\multiseed_training_logs\exp5_p0_seed42.log,<TRAINING_WORKSPACE>\checkpoints_exp5_p0_seed42,confirmed,confirmed,False,,20,20,False
+exp5_p0_seed43,0.0,43,<WORKSPACE>\experiments\results\multiseed_training_logs\exp5_p0_seed43.log,<TRAINING_WORKSPACE>\checkpoints_exp5_p0_seed43,not_recorded_in_log,not_recorded_in_log,False,,15,15,False
+exp5_p0_seed44,0.0,44,<WORKSPACE>\experiments\results\multiseed_training_logs\exp5_p0_seed44.log,<TRAINING_WORKSPACE>\checkpoints_exp5_p0_seed44,not_recorded_in_log,not_recorded_in_log,False,,14,14,False
+exp5_p05_seed42,0.5,42,<WORKSPACE>\experiments\results\multiseed_training_logs\exp5_p05_seed42.log,<TRAINING_WORKSPACE>\checkpoints_exp5_p05_seed42,confirmed,confirmed,True,0,30,30,True
+exp5_p05_seed43,0.5,43,<WORKSPACE>\experiments\results\multiseed_training_logs\exp5_p05_seed43.log,<TRAINING_WORKSPACE>\checkpoints_exp5_p05_seed43,confirmed,confirmed,True,0,30,30,True
+exp5_p05_seed44,0.5,44,<WORKSPACE>\experiments\results\multiseed_training_logs\exp5_p05_seed44.log,<TRAINING_WORKSPACE>\checkpoints_exp5_p05_seed44,confirmed,confirmed,True,0,30,30,True
+

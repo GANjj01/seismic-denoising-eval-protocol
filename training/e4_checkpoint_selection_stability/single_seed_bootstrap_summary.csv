@@ -1,0 +1,5 @@
+﻿run,scenario,m,n_repeats,full_method,full_epoch,mode_method,mode_epoch,mode_frequency,full_method_frequency,top2_epochs,top2_frequency,n_unique_selected_epochs
+p0,event_bootstrap_25,25,2000,p0_e06,6,p0_e06,6,0.552,0.552,6 8,0.9955,4
+p01,event_bootstrap_25,25,2000,p01_e07,7,p01_e07,7,0.993,0.993,7 8,0.996,4
+p05,event_bootstrap_25,25,2000,p05_e16,16,p05_e16,16,0.6465,0.6465,16 17,0.8115,8
+
