@@ -13,6 +13,6 @@ preferred-citation:
   year: 2026
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.TBD"
+    value: "10.5281/zenodo.20681570"
 repository-code: "https://github.com/GANjj01/seismic-denoising-eval-protocol"
 license: "MIT"

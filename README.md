@@ -1,5 +1,7 @@
 # seismic-denoising-eval-protocol
 
+[![DOI](https://zenodo.org/badge/1268525598.svg)](https://doi.org/10.5281/zenodo.20681569)
+
 Release candidate for the paper:
 
 > A Controlled Evaluation Protocol for Self-Supervised Three-Component Blind-Spot Seismic Denoising
