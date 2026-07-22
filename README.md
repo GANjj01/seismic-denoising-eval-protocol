@@ -2,8 +2,11 @@
 
 [![DOI](https://zenodo.org/badge/1268525598.svg)](https://doi.org/10.5281/zenodo.20681569)
 
-Code license: MIT. Released split files, case indices, diagnostic summaries,
-and derived metric tables: CC-BY-4.0.
+Source code is licensed under the MIT License. Released split files, case
+indices, diagnostic summaries, derived metric tables, and provenance tables are
+licensed under the Creative Commons Attribution 4.0 International License
+(CC BY 4.0). Third-party software and data remain under their original licenses
+and terms.
 
 Version: v1.0.3.
 
@@ -174,7 +177,7 @@ are public under `training/`.
 This repository is archived on Zenodo under the concept DOI
 [`10.5281/zenodo.20681569`](https://doi.org/10.5281/zenodo.20681569).
 
-Each versioned release is preserved as a separate Zenodo record. For exact
-reproduction, cite the version-specific DOI listed in `CITATION.cff` for the
-release used in the analysis. The concept DOI can be used to access the
-complete version history.
+Each published release is preserved as a separate Zenodo record. When citing a
+specific release, use the version-specific DOI shown on the corresponding
+Zenodo record. The concept DOI can be used to access the complete version
+history.

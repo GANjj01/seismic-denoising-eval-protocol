@@ -1,3 +1,7 @@
 __pycache__/
 *.pyc
 smoke_outputs/
+.release-test-venv/
+build/
+dist/
+*.egg-info/

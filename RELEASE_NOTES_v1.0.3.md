@@ -1,18 +1,13 @@
-# v1.0.3 Revision Release Notes
+# v1.0.3 Release Notes
 
-Status: prepared locally; pending authorized push, tag, GitHub release, Zenodo
-new version, and public access verification.
-
-This revision release updates the existing public repository for the major
-revision of:
+This release updates the evaluation-protocol artifacts for:
 
 > A Reproducible Evaluation Protocol for Self-Supervised Three-Component
 > Blind-Spot Seismic Denoising
 
-## Main Updates
+## User-Visible Updates
 
-- Updates README and citation metadata from the earlier release-candidate
-  language to the v1.0.3 revision-release candidate.
+- Updates README and citation metadata for the v1.0.3 artifact set.
 - Records the empirical scope as Raspberry Shake AM single-station
   three-component evaluation rather than instrument-independent validation.
 - Clarifies that legacy `oracle_free` filenames correspond to controlled
@@ -22,19 +17,12 @@ revision of:
   archived STA/LTA implementation, while the reusable package keeps a
   dependency-light quantile-energy `adv_gate` variant for smoke tests and
   interface checks.
-- Keeps historical releases intact and prepares a new versioned release rather
-  than modifying old tags or old Zenodo files.
-
-## Archiving Plan
-
-The project already has a Zenodo concept DOI:
-
-```text
-10.5281/zenodo.20681569
-```
-
-Stage 8B should create a new Zenodo version under the existing record and then
-replace the pending DOI/status fields with the exact v1.0.3 version DOI.
+- Adds explicit public AdvGate entry points:
+  `adv_gate_sta_lta`, `adv_gate_quantile`, and the compatibility alias
+  `adv_gate`.
+- Updates package metadata, license metadata, and checksum records.
+- Replaces local checkpoint paths in released training provenance with neutral
+  `<TRAINING_WORKSPACE>/...` placeholders.
 
 ## Compatibility
 

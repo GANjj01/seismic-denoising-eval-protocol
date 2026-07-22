@@ -6,8 +6,30 @@ build-backend = "setuptools.build_meta"
 name = "seismic-denoising-eval-protocol"
 version = "1.0.3"
 description = "Report-card utilities for reproducible self-supervised seismic denoising evaluation"
+readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+authors = [
+    {name = "Jiajing Gan", email = "gjj.research@gmail.com"},
+    {name = "Takato Takemura", email = "takemura.takato@nihon-u.ac.jp"},
+]
+license = "MIT"
+dependencies = [
+    "numpy>=1.24",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+Repository = "https://github.com/GANjj01/seismic-denoising-eval-protocol"
+Documentation = "https://github.com/GANjj01/seismic-denoising-eval-protocol#readme"
+Issues = "https://github.com/GANjj01/seismic-denoising-eval-protocol/issues"
 
 [project.optional-dependencies]
 manuscript = [

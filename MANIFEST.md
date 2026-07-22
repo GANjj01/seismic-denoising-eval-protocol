@@ -1,10 +1,6 @@
 # Manifest
 
-Version prepared: v1.0.3.
-
-Remote release status: pending authorized push, tag, GitHub release, Zenodo new
-version, and public access verification. Existing historical releases must not
-be overwritten, deleted, or force-moved.
+Version: v1.0.3.
 
 ## Reusable Protocol Code
 
@@ -108,5 +104,4 @@ report-card reproduction, or CovNorm case-study audit tables.
 - `LICENSE-CODE`
 - `LICENSE-DATA`
 - `RELEASE_NOTES_v1.0.3.md`
-- `RELEASE_STATUS_v1.0.3.yml`
 - `SHA256SUMS.txt`
