@@ -177,7 +177,7 @@ are public under `training/`.
 This repository is archived on Zenodo under the concept DOI
 [`10.5281/zenodo.20681569`](https://doi.org/10.5281/zenodo.20681569).
 
-Each published release is preserved as a separate Zenodo record. When citing a
-specific release, use the version-specific DOI shown on the corresponding
-Zenodo record. The concept DOI can be used to access the complete version
-history.
+Each versioned release is preserved as a separate Zenodo record. For exact
+reproduction, cite the version-specific DOI shown on the Zenodo record for the
+release used in the analysis. The concept DOI provides access to the complete
+version history.
