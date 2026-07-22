@@ -1,6 +1,7 @@
 """Dependency-light report-card summarizer.
 
-Input is a per-case CSV with the columns produced by the oracle-free evaluator:
+Input is a per-case CSV with the columns produced by the controlled-mixture
+evaluator. Some released files retain the legacy `oracle_free` prefix:
 case_id, station_template, method, output_vs_clean_snr, corr_z,
 amp_ratio_clean, and background_suppression_db.  If a Noisy or Identity row is
 present for each case, clean-SNR gain is computed relative to that row.
@@ -91,7 +92,7 @@ def write_rows(path: Path, rows: list[dict[str, object]]) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", required=True, type=Path, help="Per-case oracle-free metrics CSV")
+    parser.add_argument("--input", required=True, type=Path, help="Per-case controlled-mixture metrics CSV")
     parser.add_argument("--output", required=True, type=Path, help="Summary report-card CSV")
     args = parser.parse_args(argv)
     rows = summarize(read_rows(args.input))

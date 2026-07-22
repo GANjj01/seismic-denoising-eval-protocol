@@ -1,0 +1,38 @@
+release_version: "v1.0.3"
+repository: "GANjj01/seismic-denoising-eval-protocol"
+repository_url: "https://github.com/GANjj01/seismic-denoising-eval-protocol"
+status: "prepared locally; pending public write authorization"
+latest_existing_public_release_confirmed_by_user: "v1.0.2"
+revision_release_target_confirmed_by_user: "v1.0.3"
+remote_history_audit_executed_in_stage8a: false
+remote_history_audit_reason: "User confirmed current release state and instructed Stage 8A to start from v1.0.3 preparation."
+historical_releases_policy:
+  overwrite_existing_tags: false
+  force_move_existing_tags: false
+  delete_historical_releases: false
+  append_revision_to_old_release: false
+zenodo:
+  existing_record_policy: "create a new version of the existing Zenodo record"
+  concept_doi: "10.5281/zenodo.20681569"
+  previous_version_doi_in_old_citation: "10.5281/zenodo.20681570"
+  v1_0_3_version_doi: "[REVISED ZENODO VERSION DOI PENDING]"
+  publish_status: "pending authorization"
+github:
+  tag: "v1.0.3"
+  release_url: "[FINAL REVISION GITHUB RELEASE URL PENDING]"
+  publish_status: "pending authorization"
+compatibility:
+  semantic_versioning_decision: "patch release"
+  breaking_api_change_intended: false
+  adv_gate_public_alias_retained: true
+  legacy_filenames_retained: true
+verification:
+  smoke_test_status: "passed locally; wrote smoke_outputs/oracle_free_report_card_smoke.csv with 7 methods"
+  checksums: "SHA256SUMS.txt"
+  public_readme_polish_status: "completed"
+  public_readme_internal_status_terms_scan: "passed"
+  public_readme_parent_directory_references: 0
+superseded_local_archive_candidates:
+  - archive: "dist/seismic-denoising-eval-protocol_v1.0.3.zip"
+    sha256: "99b4dbb49a4bd39be64cecef9061bdf29d1363faf2005349b774741b8c0cda5c"
+    reason: "Superseded by public README polish and regenerated archive."

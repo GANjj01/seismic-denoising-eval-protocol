@@ -1,5 +1,11 @@
 # Manifest
 
+Version prepared: v1.0.3.
+
+Remote release status: pending authorized push, tag, GitHub release, Zenodo new
+version, and public access verification. Existing historical releases must not
+be overwritten, deleted, or force-moved.
+
 ## Reusable Protocol Code
 
 - `src/blindspot_eval_protocol/metrics.py`
@@ -18,12 +24,14 @@
 - `splits/train_val_stations.txt`
 - `splits/development_stations.txt`
 - `splits/final_test_stations.txt`
-- `indices/oracle_free_816_case_index.csv`
+- `indices/oracle_free_816_case_index.csv` (legacy filename; controlled
+  reference-based mixture index in revised terminology)
 - `indices/final_real_272_event_index.csv`
 
 ## Derived Tables
 
-- `per_case_metrics/oracle_free_816_all_methods.csv`
+- `per_case_metrics/oracle_free_816_all_methods.csv` (legacy filename;
+  controlled reference-based mixture metrics in revised terminology)
 - `per_case_metrics/final_real_272_all_methods.csv`
 - `per_case_metrics/self_supervised_identity_summary_gain.csv`
 - `per_case_metrics/six_way_oracle_free_report_card.csv`
@@ -92,3 +100,13 @@
 Legacy one-off scripts were consolidated into reusable modules under `src/`.
 Unreleased local scripts are not required for the released smoke test,
 report-card reproduction, or CovNorm case-study audit tables.
+
+## Release Metadata
+
+- `CITATION.cff`
+- `LICENSE`
+- `LICENSE-CODE`
+- `LICENSE-DATA`
+- `RELEASE_NOTES_v1.0.3.md`
+- `RELEASE_STATUS_v1.0.3.yml`
+- `SHA256SUMS.txt`

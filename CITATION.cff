@@ -1,18 +1,25 @@
 cff-version: 1.2.0
 message: "If you use this evaluation protocol, please cite the software release and the associated manuscript."
-title: "seismic-denoising-eval-protocol"
-version: "1.0.0-rc1"
-date-released: "2026-06-14"
+title: "A Reproducible Evaluation Protocol for Self-Supervised Three-Component Blind-Spot Seismic Denoising: Evaluation Protocol Artifacts"
+version: "1.0.3"
+date-released: "2026-07-23"
 authors:
-  - name: "Anonymous manuscript authors"
+  - family-names: "Gan"
+    given-names: "Jiajing"
+  - family-names: "Takemura"
+    given-names: "Takato"
 preferred-citation:
   type: article
-  title: "A Controlled Evaluation Protocol for Self-Supervised Three-Component Blind-Spot Seismic Denoising"
+  title: "A Reproducible Evaluation Protocol for Self-Supervised Three-Component Blind-Spot Seismic Denoising"
   authors:
-    - name: "Anonymous manuscript authors"
+    - family-names: "Gan"
+      given-names: "Jiajing"
+    - family-names: "Takemura"
+      given-names: "Takato"
   year: 2026
+  journal: "Artificial Intelligence in Geosciences"
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.20681570"
+    value: "10.5281/zenodo.20681569"
 repository-code: "https://github.com/GANjj01/seismic-denoising-eval-protocol"
 license: "MIT"

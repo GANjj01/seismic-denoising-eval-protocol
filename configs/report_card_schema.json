@@ -1,5 +1,5 @@
 {
-  "oracle_free_required_columns": [
+  "controlled_mixture_required_columns": [
     "case_id",
     "station_template",
     "method",
@@ -16,6 +16,9 @@
     "amp_ratio",
     "delay_s"
   ],
+  "legacy_aliases": {
+    "oracle_free_required_columns": "controlled_mixture_required_columns"
+  },
   "notes": [
     "Continuous clean-SNR is reported as gain relative to Noisy or Identity.",
     "Correlation is Z-component normalized cross-correlation after best lag.",

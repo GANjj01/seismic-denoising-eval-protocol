@@ -40,7 +40,7 @@ def adv_gate_quantile(x, energy_threshold_quantile: float = 0.90):
     only high-energy samples and demonstrates the same metric-failure mode.
     """
     if np is None:
-        raise RuntimeError("adv_gate requires NumPy")
+        raise RuntimeError("adv_gate_quantile requires NumPy")
     energy = np.linalg.norm(x.astype(float), axis=-1)
     threshold = np.quantile(energy, energy_threshold_quantile)
     gate = (energy >= threshold).astype(x.dtype)
@@ -52,7 +52,7 @@ def adv_gate_quantile(x, energy_threshold_quantile: float = 0.90):
 def adv_gate_sta_lta(x, fs: float, sta_s: float = 0.5, lta_s: float = 10.0, tau: float = 2.5):
     """Manuscript-exact STA/LTA AdvGate used for Table 4 and Figure 5.
 
-    This implementation requires ObsPy.  It gates samples using
+    This implementation requires ObsPy. It gates samples using
     ``obspy.signal.trigger.classic_sta_lta`` applied to the three-component
     energy trace, matching the paper-era legacy evaluation script.
     """
@@ -61,7 +61,7 @@ def adv_gate_sta_lta(x, fs: float, sta_s: float = 0.5, lta_s: float = 10.0, tau:
     try:
         from obspy.signal.trigger import classic_sta_lta
     except Exception as exc:  # pragma: no cover - optional dependency path.
-        raise RuntimeError("adv_gate_sta_lta requires ObsPy") from exc
+        raise RuntimeError("adv_gate_sta_lta requires ObsPy; install with `pip install .[manuscript]`") from exc
     energy = np.linalg.norm(x.astype(float), axis=-1)
     cft = classic_sta_lta(energy, int(sta_s * fs), int(lta_s * fs))
     gate = (cft > tau).astype(x.dtype)

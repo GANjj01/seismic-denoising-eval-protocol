@@ -4,17 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "seismic-denoising-eval-protocol"
-version = "1.0.0"
-description = "Report-card utilities for self-supervised seismic denoising evaluation"
+version = "1.0.3"
+description = "Report-card utilities for reproducible self-supervised seismic denoising evaluation"
 requires-python = ">=3.10"
 dependencies = []
 
 [project.optional-dependencies]
-manuscript-advgate = [
+manuscript = [
     "numpy",
     "obspy",
 ]
-smoke-baselines = [
+smoke = [
     "numpy",
 ]
 

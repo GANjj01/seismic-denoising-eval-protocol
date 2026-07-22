@@ -10,6 +10,7 @@ from blindspot_eval_protocol.report_card import main as report_card_main
 
 
 def main() -> int:
+    # The legacy filename is kept for compatibility with earlier releases.
     input_csv = ROOT / "per_case_metrics" / "oracle_free_816_all_methods.csv"
     output_csv = ROOT / "smoke_outputs" / "oracle_free_report_card_smoke.csv"
     return report_card_main(["--input", str(input_csv), "--output", str(output_csv)])
