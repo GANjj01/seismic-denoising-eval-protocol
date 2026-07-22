@@ -133,6 +133,31 @@ a one-command workflow in this evaluation-protocol release, but the
 training-side logs and checkpoint-selection summaries used by the manuscript
 are public under `training/`.
 
+## AdvGate Reproduction Path
+
+The manuscript Table 4 and Figure 5 AdvGate results were generated with the
+STA/LTA implementation exposed as:
+
+```text
+blindspot_eval_protocol.baselines.adv_gate_sta_lta
+```
+
+This is distinct from the dependency-light quantile energy gate exposed as:
+
+```text
+blindspot_eval_protocol.baselines.adv_gate_quantile
+```
+
+The legacy paper reproduction script at
+`legacy_scripts/adversarial_baselines_eval.py` now explicitly maps the
+manuscript `AdvGate` row to `adv_gate_sta_lta`.  The public `adv_gate` name is
+kept as a backward-compatible alias for the quantile gate used by lightweight
+smoke-test examples.  Do not use `adv_gate`/`adv_gate_quantile` outputs as a
+claim of reproducing the manuscript AdvGate row.
+
+For details, including parameters, dependencies, expected tolerance, and the
+original-workstation rerun command, see `baselines/README.md`.
+
 ## Citation And Archiving
 
 The repository is archived on Zenodo.  Cite the concept DOI for the project

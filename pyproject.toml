@@ -9,5 +9,14 @@ description = "Report-card utilities for self-supervised seismic denoising evalu
 requires-python = ">=3.10"
 dependencies = []
 
+[project.optional-dependencies]
+manuscript-advgate = [
+    "numpy",
+    "obspy",
+]
+smoke-baselines = [
+    "numpy",
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]

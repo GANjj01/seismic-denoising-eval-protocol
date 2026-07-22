@@ -4,6 +4,11 @@ These scripts are included for provenance because they produced the paper-era
 evaluation tables.  Some defaults still reference the original local Windows
 workspace and should be overridden before use.
 
+For the adversarial diagnostic, manuscript `AdvGate` means the STA/LTA
+implementation now named `adv_gate_sta_lta` in
+`adversarial_baselines_eval.py`.  The dependency-light public quantile gate is a
+separate smoke-test variant and is not the Table 4/Figure 5 reproduction path.
+
 For new baselines, prefer the reusable package interface:
 
 ```text

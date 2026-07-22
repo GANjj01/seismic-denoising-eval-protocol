@@ -62,11 +62,17 @@ def robust_mad(x: np.ndarray, axis=0) -> np.ndarray:
     return np.median(np.abs(x - med), axis=axis, keepdims=True) + 1e-12
 
 
-def adv_gate(x: np.ndarray, sta_s: float = 0.5, lta_s: float = 10.0, tau: float = 2.5) -> np.ndarray:
+def adv_gate_sta_lta(x: np.ndarray, sta_s: float = 0.5, lta_s: float = 10.0, tau: float = 2.5) -> np.ndarray:
+    """Manuscript-exact STA/LTA AdvGate used for Table 4 and Figure 5."""
     energy = np.linalg.norm(x.astype(np.float64), axis=1)
     cft = classic_sta_lta(energy, int(sta_s * FS), int(lta_s * FS))
     gate = (cft > tau).astype(np.float32)[:, None]
     return (x * gate).astype(np.float32)
+
+
+def adv_gate(x: np.ndarray, sta_s: float = 0.5, lta_s: float = 10.0, tau: float = 2.5) -> np.ndarray:
+    """Backward-compatible alias for the manuscript-exact STA/LTA AdvGate."""
+    return adv_gate_sta_lta(x, sta_s=sta_s, lta_s=lta_s, tau=tau)
 
 
 def adv_shrink(x: np.ndarray, tau: float = 3.0) -> np.ndarray:
@@ -80,7 +86,7 @@ def adv_scale(x: np.ndarray, scale: float = 0.01) -> np.ndarray:
 
 def adversarial_outputs(x: np.ndarray) -> dict[str, np.ndarray]:
     return {
-        "AdvGate": adv_gate(x),
+        "AdvGate": adv_gate_sta_lta(x),
         "AdvShrink": adv_shrink(x),
         "AdvScale": adv_scale(x),
     }
