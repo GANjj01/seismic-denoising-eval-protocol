@@ -1,0 +1,23 @@
+{
+  "generated_utc": "2026-07-23T17:30:09+00:00",
+  "tables": {
+    "e3_reconstructed_no_taper_table": {
+      "script": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\revision_workspace\\analysis\\scripts\\reconstruct_e3_e5_no_taper.py",
+      "source_manifest": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\revision_workspace\\reconstructed_no_taper_e3_e5\\manifests\\e3_no_taper_manifest.csv",
+      "source_metrics": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\revision_workspace\\reconstructed_no_taper_e3_e5\\metrics\\e3_detail_wide.csv",
+      "manuscript_table_number": 10,
+      "manuscript_label": "tab:e3_leakage",
+      "manuscript_fragment": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\revision_workspace\\manuscript\\generated_tables\\table10_e3_reconstructed_no_taper.tex",
+      "manuscript_role": "reconstructed no-taper shared-target station-domain diagnostic"
+    },
+    "e5_reconstructed_no_taper_table": {
+      "script": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\revision_workspace\\analysis\\scripts\\reconstruct_e3_e5_no_taper.py",
+      "source_manifest": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\revision_workspace\\reconstructed_no_taper_e3_e5\\manifests\\e5_no_taper_manifest.csv",
+      "source_metrics": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\revision_workspace\\reconstructed_no_taper_e3_e5\\metrics\\e5_detail_wide.csv",
+      "manuscript_table_number": 12,
+      "manuscript_label": "tab:e5_performance",
+      "manuscript_fragment": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\revision_workspace\\manuscript\\generated_tables\\table12_e5_reconstructed_no_taper.tex",
+      "manuscript_role": "reconstructed no-taper shared-target paired selected-checkpoint diagnostic"
+    }
+  }
+}

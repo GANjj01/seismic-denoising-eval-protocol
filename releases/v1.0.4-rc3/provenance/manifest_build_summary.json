@@ -1,0 +1,11 @@
+{
+  "created_utc": "2026-07-23T16:33:24+00:00",
+  "e3_manifest_rows": 13056,
+  "e3_manifest_sha256": "721b729a65ec7ab3b6ce0dbbf69cf8ea7970da2041318f33f704a6ac67d5729c",
+  "e5_manifest_rows": 8160,
+  "e5_manifest_sha256": "ecaeec2ad4f0bdb2291b319dac532de77a2285ded4ad948f1418483329545938",
+  "max_cases": 0,
+  "source_case_csv": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\experiments\\results\\oracle_free_final_notaper\\oracle_free_continuous_detail.csv",
+  "source_case_csv_sha256": "bf6559cfad88a24176d345f498752fb236de5034e0d79c10ec153d40dbeae416",
+  "unique_anchor_cases": 816
+}

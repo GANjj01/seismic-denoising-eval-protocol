@@ -1,0 +1,9 @@
+{
+  "e3_manifest_sha256": "8d065333c5e8dec4331e8440c5d83c1cb98709ebe8930fbb29f50ea59990a481",
+  "e3_metric_rows": 65280,
+  "e5_manifest_sha256": "6fd76b713ade296f3c419e31ddb58bc6e3e8be6dde52869e9a627091a0bd5da1",
+  "e5_metric_rows": 40800,
+  "experiment_root": "C:\\Users\\Administrator\\Documents\\seismic denoiser\\revision_workspace\\reconstructed_no_taper_e3_e5",
+  "generated_utc": "2026-07-23T17:30:09+00:00",
+  "git_head": "28ebc3bfc52b9aed3f3b4b1e183f346af4500a4e"
+}

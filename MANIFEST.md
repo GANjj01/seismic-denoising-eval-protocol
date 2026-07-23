@@ -2,6 +2,9 @@
 
 Version: v1.0.3.
 
+The v1.0.4 release-candidate audit package is staged in
+`releases/v1.0.4-rc3/` and does not overwrite the v1.0.3 root package.
+
 ## Reusable Protocol Code
 
 - `src/blindspot_eval_protocol/metrics.py`
@@ -104,4 +107,8 @@ report-card reproduction, or CovNorm case-study audit tables.
 - `LICENSE-CODE`
 - `LICENSE-DATA`
 - `RELEASE_NOTES_v1.0.3.md`
+- `releases/v1.0.4-rc3/README.md`
+- `releases/v1.0.4-rc3/RELEASE_NOTES_v1.0.4.md`
+- `releases/v1.0.4-rc3/PUBLIC_SHA256SUMS.txt`
+- `releases/v1.0.4-rc3/scripts/verify_release_artifacts.py`
 - `SHA256SUMS.txt`

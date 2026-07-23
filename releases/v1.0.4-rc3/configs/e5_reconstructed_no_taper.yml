@@ -1,0 +1,93 @@
+{
+  "code_commit": "28ebc3bfc52b9aed3f3b4b1e183f346af4500a4e",
+  "experiment_id": "E5_RECONSTRUCTED_NOTAPER_V1",
+  "experiment_identity": "reconstructed_no_taper",
+  "historical_sample_identity_claim": false,
+  "manifest_source_case_csv": "external_or_recreated_inputs/oracle_free_final_notaper/oracle_free_continuous_detail.csv",
+  "methods": [
+    {
+      "checkpoint_path": "",
+      "checkpoint_sha256": "",
+      "description": "",
+      "method": "Noisy"
+    },
+    {
+      "checkpoint_path": "",
+      "checkpoint_sha256": "",
+      "description": "",
+      "method": "Bandpass"
+    },
+    {
+      "checkpoint_path": "",
+      "checkpoint_sha256": "",
+      "description": "",
+      "method": "Wiener_blind"
+    },
+    {
+      "checkpoint_path": "",
+      "checkpoint_sha256": "",
+      "description": "",
+      "method": "Wiener_oracle"
+    },
+    {
+      "checkpoint_path": "external_checkpoints/epoch_015.pt",
+      "checkpoint_sha256": "cbba77bf627ba96db43f5c9fe11826e08999573692ea451a68b45c4ea03b8b48",
+      "description": "lambda=0 seed=42 epoch=15",
+      "method": "exp5_p0_seed42_e015"
+    },
+    {
+      "checkpoint_path": "external_checkpoints/epoch_008.pt",
+      "checkpoint_sha256": "827cd9562a903ed7983152c50868dc26948bc20b461a93a2faefd8b20f91a26e",
+      "description": "lambda=0 seed=43 epoch=8",
+      "method": "exp5_p0_seed43_e008"
+    },
+    {
+      "checkpoint_path": "external_checkpoints/epoch_013.pt",
+      "checkpoint_sha256": "1eeadc173c99e2390dc31cd60af2ae387e817b915f3ed1b4b3d19e2d6d0b30d2",
+      "description": "lambda=0 seed=44 epoch=13",
+      "method": "exp5_p0_seed44_e013"
+    },
+    {
+      "checkpoint_path": "external_checkpoints/epoch_020.pt",
+      "checkpoint_sha256": "3bddddb3a72400192df0144f878c33ab217c8e1bfb706f3615ded31c78a9bef9",
+      "description": "lambda=0.5 seed=42 epoch=20",
+      "method": "exp5_p05_seed42_e020"
+    },
+    {
+      "checkpoint_path": "external_checkpoints/epoch_022.pt",
+      "checkpoint_sha256": "a089c19908ef3c94fddf8c06000a93e5a058cba185418dc08d01f7d6adf86bb2",
+      "description": "lambda=0.5 seed=43 epoch=22",
+      "method": "exp5_p05_seed43_e022"
+    },
+    {
+      "checkpoint_path": "external_checkpoints/epoch_014.pt",
+      "checkpoint_sha256": "50bc3d082f8be3206d0742660f7c5eefb9cb02f953532550cc36b9b8438aee5f",
+      "description": "lambda=0.5 seed=44 epoch=14",
+      "method": "exp5_p05_seed44_e014"
+    }
+  ],
+  "paired_seed_design": [
+    42,
+    43,
+    44
+  ],
+  "post_p_seconds": 25.0,
+  "pre_p_seconds": 10.0,
+  "sampling_rate_hz": 100.0,
+  "taper": {
+    "input": false,
+    "mixture": false,
+    "output": false,
+    "scoring": false,
+    "target": false,
+    "visualization": false
+  },
+  "target_snr_db": [
+    -5.0,
+    0.0,
+    5.0
+  ],
+  "window_length_samples": 3500,
+  "window_length_seconds": 35.0,
+  "public_path_policy": "Paths in this public release candidate are repository-relative identifiers. Raw waveforms and model checkpoints are external assets identified by filenames and hashes."
+}

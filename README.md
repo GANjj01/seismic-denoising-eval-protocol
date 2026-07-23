@@ -10,6 +10,11 @@ and terms.
 
 Version: v1.0.3.
 
+The manuscript-matched v1.0.4 release-candidate audit package is staged under
+`releases/v1.0.4-rc3/`. It adds the reconstructed no-taper E3/E5 artifacts,
+Table 10/12 rebuild scripts, validation reports, and oracle-terminology cleanup
+without overwriting the preserved v1.0.3 release state.
+
 This repository supports the manuscript:
 
 > A Reproducible Evaluation Protocol for Self-Supervised Three-Component

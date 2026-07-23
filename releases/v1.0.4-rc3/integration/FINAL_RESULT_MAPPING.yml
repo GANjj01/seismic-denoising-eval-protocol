@@ -1,0 +1,68 @@
+e3:
+  identity: "reconstructed_no_taper_shared_target_diagnostic"
+  table_number: 10
+  label: "tab:e3_leakage"
+  cases: 1632
+  method_case_rows: 13056
+  metric_rows: 65280
+  failures: 0
+  bootstrap:
+    type: "independent station-group bootstrap"
+    replicates: 20000
+    interval: "percentile 95% CI"
+    station_weighting: "equal"
+  source_manifest: "reconstructed_no_taper_e3_e5/manifests/e3_no_taper_manifest.csv"
+  source_manifest_sha256: "8d065333c5e8dec4331e8440c5d83c1cb98709ebe8930fbb29f50ea59990a481"
+  source_metrics: "reconstructed_no_taper_e3_e5/metrics/e3_per_case_metrics.csv"
+  source_metrics_sha256: "54e50abe38df40526eafb7e224cbbff8d0107855b51b3dfb3db71a2159d0da15"
+  source_table: "reconstructed_no_taper_e3_e5/tables/e3_reconstructed_no_taper_table.csv"
+  source_table_sha256: "167dbe6e6a36d015ea424fce667e49d151163183ad209afd6edd5ef161df02c1"
+  manuscript_fragment: "manuscript/generated_tables/table10_e3_reconstructed_no_taper.tex"
+  manuscript_sections:
+    - "Methods scoring tracks, pp. 10--13, ll. 134--163"
+    - "E3, pp. 31--33, ll. 449--498"
+    - "Discussion, pp. 43--49, ll. 622--760"
+    - "Limitations, pp. 50--52, ll. 761--813"
+  response_items:
+    - "Reviewer 2, Comment 5"
+    - "Reviewer 2, Comment 11"
+    - "Author-Initiated Clarification: scoring tracks"
+e5:
+  identity: "reconstructed_no_taper_shared_target_diagnostic"
+  table_number: 12
+  label: "tab:e5_performance"
+  cases: 816
+  method_case_rows: 8160
+  metric_rows: 40800
+  failures: 0
+  source_manifest: "reconstructed_no_taper_e3_e5/manifests/e5_no_taper_manifest.csv"
+  source_manifest_sha256: "6fd76b713ade296f3c419e31ddb58bc6e3e8be6dde52869e9a627091a0bd5da1"
+  source_metrics: "reconstructed_no_taper_e3_e5/metrics/e5_per_case_metrics.csv"
+  source_metrics_sha256: "e839f725600e308adc6c709706028c4d0f2469ddf20196a8ae171d16cbdeeced"
+  source_table: "reconstructed_no_taper_e3_e5/tables/e5_reconstructed_no_taper_table.csv"
+  source_table_sha256: "51b5550981480485ad2b29c5ac186f8b6ef058a385c697f319317e342e652923"
+  manuscript_fragment: "manuscript/generated_tables/table12_e5_reconstructed_no_taper.tex"
+  manuscript_sections:
+    - "Methods scoring tracks, pp. 10--13, ll. 134--163"
+    - "E5, pp. 37--39, ll. 541--583"
+    - "Discussion, pp. 43--49, ll. 622--760"
+    - "Limitations, pp. 50--52, ll. 761--813"
+  response_items:
+    - "Reviewer 2, Comment 5"
+    - "Reviewer 2, Comment 9"
+    - "Author-Initiated Clarification: scoring tracks"
+historical_identity_claim:
+  sample_identical_rerun: false
+  taper_only_change: false
+  exact_reproduction_of_submitted_e3_e5: false
+historical_tapered_artifacts:
+  retained: true
+  retained_for: "version provenance and historical confounding sensitivity"
+  used_as_current_revised_numeric_result: false
+primary_track:
+  includes_e3_e5: false
+public_release:
+  github_push: false
+  zenodo_publish: false
+  v1_0_3_modified: false
+  recommended_next_public_version: "v1.0.4"
