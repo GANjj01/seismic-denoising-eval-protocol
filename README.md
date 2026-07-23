@@ -10,11 +10,21 @@ and terms.
 
 Version: v1.0.4.
 
-The manuscript-matched v1.0.4 package is staged under `releases/v1.0.4/`.
-It adds the reconstructed no-taper E3/E5 artifacts, Table 10/12 rebuild
-scripts, validation reports, and terminology cleanup without overwriting the
-preserved v1.0.3 release state. The formal GitHub Release page will become
-available after the `v1.0.4` tag and release are created.
+The manuscript-matched v1.0.4 package is available from the GitHub Release:
+
+https://github.com/GANjj01/seismic-denoising-eval-protocol/releases/tag/v1.0.4
+
+The v1.0.4 Zenodo version DOI is:
+
+https://doi.org/10.5281/zenodo.21516779
+
+The project concept DOI, which resolves to the complete version history, is:
+
+https://doi.org/10.5281/zenodo.20681569
+
+The v1.0.4 package adds the reconstructed no-taper E3/E5 artifacts, Table
+10/12 rebuild scripts, validation reports, and terminology cleanup without
+overwriting the preserved v1.0.3 release state.
 
 This repository supports the manuscript:
 
@@ -185,7 +195,6 @@ This repository is archived on Zenodo under the concept DOI
 [`10.5281/zenodo.20681569`](https://doi.org/10.5281/zenodo.20681569).
 
 Each versioned release is preserved as a separate Zenodo record. For exact
-reproduction, cite the version-specific DOI shown on the Zenodo record for the
-release used in the analysis. The concept DOI provides access to the complete
-version history. Version-specific archival metadata for v1.0.4 is provided by
-the connected Zenodo release record after GitHub publication.
+reproduction of the manuscript-matched v1.0.4 materials, cite the version DOI
+[`10.5281/zenodo.21516779`](https://doi.org/10.5281/zenodo.21516779). The
+concept DOI provides access to the complete version history.
