@@ -4,8 +4,8 @@ Earthquake templates are injected at hidden random times into 90 s continuous
 noise assembled from held-out Raspberry Shake noise windows.  Neural models,
 band-pass filtering, and the blind Wiener baseline receive only the mixture.
 The blind Wiener estimate uses low-energy frames selected from the full trace;
-it is not given the event onset.  An oracle Wiener result that sees the true
-noise realization is reported separately as an upper-bound diagnostic.
+it is not given the event onset.  A source-aware Wiener diagnostic that sees
+the true noise realization is reported separately as an upper-bound diagnostic.
 """
 
 from __future__ import annotations

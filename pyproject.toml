@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "seismic-denoising-eval-protocol"
-version = "1.0.3"
+version = "1.0.4"
 description = "Report-card utilities for reproducible self-supervised seismic denoising evaluation"
 readme = "README.md"
 requires-python = ">=3.10"

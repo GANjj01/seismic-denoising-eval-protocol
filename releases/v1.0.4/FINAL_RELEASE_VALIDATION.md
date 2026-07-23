@@ -1,6 +1,6 @@
-# RC3 validation report
+# Final release validation
 
-Package: `seismic-denoising-eval-protocol_v1.0.4-rc3`
+Package: `seismic-denoising-eval-protocol_v1.0.4`
 
 Validation command:
 
@@ -8,11 +8,13 @@ Validation command:
 python scripts/verify_release_artifacts.py
 ```
 
-Result after local staging validation: pass.
+Expected verifier result: `status: pass`.
 
 Checks covered by the verifier:
 
 - No local absolute path pollution in scanned public text files.
+- No forbidden current-public terminology outside allowlisted historical audit
+  and verifier-policy contexts.
 - E3 manifest rows: 13,056.
 - E3 unique cases: 1,632.
 - E3 failures: 0.
@@ -30,10 +32,12 @@ Checks covered by the verifier:
 - Table 10 and Table 12 LaTeX fragments rebuilt from released CSVs and matched
   the manuscript fragments exactly.
 - Public file SHA256 checks passed.
+- The misnamed duplicate `tables/table10_reconstructed_no_taper_candidate.tex`
+  is absent.
 
 Boundary:
 
-The default RC3 archive excludes the 2.57 GB sample tensor directory. It supports
+The default archive excludes the 2.57 GB sample tensor directory. It supports
 table-level audit from released metrics and manifests. Full waveform inference
-requires external raw waveforms and model checkpoints identified by filenames and
-provenance hashes.
+requires external raw waveforms and model checkpoints identified by filenames
+and provenance hashes.

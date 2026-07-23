@@ -1,4 +1,4 @@
-"""Validate the v1.0.4-rc3 E3/E5 release-candidate archive."""
+"""Validate the v1.0.4 E3/E5 release archive."""
 
 from __future__ import annotations
 
@@ -55,6 +55,13 @@ def main() -> int:
         "non-oracle",
         "non-oracle methods",
         "non-oracle interpretation",
+        "release candidate",
+        "candidate package",
+        "pre-release",
+        "publication authorization",
+        "ready for publication authorization",
+        "v1.0.4-rc3",
+        "rc3",
     ]
     allowlisted_fragments = [
         "release_sync/ORACLE_TERMINOLOGY_OCCURRENCE_MAP.md",
@@ -63,6 +70,7 @@ def main() -> int:
         "release_sync/TERMINOLOGY_AUDIT.md",
         "release_sync/PRE_RELEASE_PATCH_CHANGELOG.md",
         "scripts/verify_release_artifacts.py",
+        "GITHUB_RELEASE_HANDOFF.md",
     ]
     terminology_hits = []
     for path in root.rglob("*"):
@@ -137,9 +145,9 @@ def main() -> int:
         errors.append("README missing Noisy sanity-control note")
     if (root / "tables" / "table10_reconstructed_no_taper_candidate.tex").exists():
         errors.append("misnamed table10_reconstructed_no_taper_candidate.tex is present")
-    candidate = (root / "MANUSCRIPT_RELEASE_UPDATE_CANDIDATE.md").read_text(encoding="utf-8")
-    if "supports, but does not prove" not in candidate:
-        errors.append("release-update candidate missing support-not-proof wording")
+    release_notes = (root / "RELEASE_NOTES_v1.0.4.md").read_text(encoding="utf-8")
+    if "supports robustness but does not prove taper-only causation" not in release_notes:
+        errors.append("release notes missing support-not-proof wording")
 
     checksums = root / "PUBLIC_SHA256SUMS.txt"
     if checksums.exists():
@@ -168,7 +176,7 @@ def main() -> int:
         "e3_unique_cases": len({r["case_id"] for r in e3_manifest}),
         "e5_unique_cases": len({r["case_id"] for r in e5_manifest}),
     }
-    (root / "RC3_VALIDATION_REPORT.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    (root / "FINAL_RELEASE_VALIDATION.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0 if not errors else 1
 

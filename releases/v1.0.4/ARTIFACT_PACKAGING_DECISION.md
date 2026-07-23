@@ -1,6 +1,6 @@
 # Artifact packaging decision
 
-- Version candidate: v1.0.4-rc3
+- Version: v1.0.4
 - Prepared: 2026-07-23T19:02:55Z
 - Scope: manuscript-matched E3/E5 reconstructed no-taper audit artifacts.
 - Excluded by default: `artifacts/` sample tensors (31,008 files, 2.57 GB).
@@ -13,4 +13,4 @@ retag v1.0.3.
 
 Full waveform inference remains a higher-cost reproduction path because raw
 MiniSEED waveforms and model checkpoints are external assets. The release
-candidate preserves filenames and SHA256 hashes needed to audit those assets.
+package preserves filenames and SHA256 hashes needed to audit those assets.

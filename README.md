@@ -8,12 +8,13 @@ licensed under the Creative Commons Attribution 4.0 International License
 (CC BY 4.0). Third-party software and data remain under their original licenses
 and terms.
 
-Version: v1.0.3.
+Version: v1.0.4.
 
-The manuscript-matched v1.0.4 release-candidate audit package is staged under
-`releases/v1.0.4-rc3/`. It adds the reconstructed no-taper E3/E5 artifacts,
-Table 10/12 rebuild scripts, validation reports, and oracle-terminology cleanup
-without overwriting the preserved v1.0.3 release state.
+The manuscript-matched v1.0.4 package is staged under `releases/v1.0.4/`.
+It adds the reconstructed no-taper E3/E5 artifacts, Table 10/12 rebuild
+scripts, validation reports, and terminology cleanup without overwriting the
+preserved v1.0.3 release state. The formal GitHub Release page will become
+available after the `v1.0.4` tag and release are created.
 
 This repository supports the manuscript:
 
@@ -77,6 +78,7 @@ seismic-denoising-eval-protocol/
   configs/                        schema and example path config
   environments/                   conda environment exports
   training/                       CovNorm case-study provenance tables
+  releases/v1.0.4/                manuscript-matched reconstructed E3/E5 package
 ```
 
 The reusable evaluation interface is separated from the full CovNorm training
@@ -185,4 +187,5 @@ This repository is archived on Zenodo under the concept DOI
 Each versioned release is preserved as a separate Zenodo record. For exact
 reproduction, cite the version-specific DOI shown on the Zenodo record for the
 release used in the analysis. The concept DOI provides access to the complete
-version history.
+version history. Version-specific archival metadata for v1.0.4 is provided by
+the connected Zenodo release record after GitHub publication.

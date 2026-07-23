@@ -85,5 +85,5 @@
   ],
   "window_length_samples": 3500,
   "window_length_seconds": 35.0,
-  "public_path_policy": "Paths in this public release candidate are repository-relative identifiers. Raw waveforms and model checkpoints are external assets identified by filenames and hashes."
+  "public_path_policy": "Paths in this public release package are repository-relative identifiers. Raw waveforms and model checkpoints are external assets identified by filenames and hashes."
 }

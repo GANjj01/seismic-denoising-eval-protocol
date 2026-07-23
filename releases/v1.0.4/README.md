@@ -1,7 +1,7 @@
-# Seismic denoising evaluation protocol v1.0.4-rc3
+# Seismic denoising evaluation protocol v1.0.4
 
-This local release candidate stages the manuscript-matched E3/E5 no-taper
-reconstruction artifacts prepared after the v1.0.3 public release.
+This package provides the manuscript-matched E3/E5 no-taper reconstruction
+artifacts prepared after the v1.0.3 public release.
 
 ## Contents
 
@@ -21,11 +21,11 @@ baseline and is excluded from the principal report-card interpretation. The
 Noisy row is the unprocessed-input sanity control; zero-valued gain contrasts
 are expected by construction where applicable.
 
-The 2.57 GB `artifacts/` tensor directory is excluded from this default source
-archive. This package therefore supports manuscript-table audit from released
-metrics and manifests. Full waveform-level re-execution requires external raw
-waveforms and model checkpoints identified by the manifest filenames and
-provenance hash listings.
+The 2.57 GB `artifacts/` tensor directory is excluded from this default archive.
+This package therefore supports manuscript-table audit from released metrics and
+manifests. Full waveform-level re-execution requires external raw waveforms and
+model checkpoints identified by the manifest filenames and provenance hash
+listings.
 
 ## Quick validation
 
@@ -37,4 +37,5 @@ python scripts/verify_release_artifacts.py
 
 Expected result: `status: pass`.
 
-Prepared: 2026-07-23T19:02:55Z
+Version-specific archival metadata is provided by the connected Zenodo release
+record after GitHub publication.

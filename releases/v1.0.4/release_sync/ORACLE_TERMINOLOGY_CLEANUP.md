@@ -21,9 +21,9 @@ tables.
 - Reviewer 2, Comment 11 response:
   - old: `principal non-oracle methods`
   - new: `principal report-card methods`
-- rc3 README:
+- v1.0.4 README:
   - uses `principal report-card interpretation`.
-- rc3 release notes:
+- v1.0.4 release notes:
   - refers to `oracle-based comparison framing`, not the abandoned slash-form
     wording.
 
