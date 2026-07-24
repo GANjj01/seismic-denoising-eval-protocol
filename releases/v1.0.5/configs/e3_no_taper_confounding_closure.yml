@@ -1,0 +1,24 @@
+schema_version: 1
+analysis: e3_no_taper_confounding_closure
+source_experiment: reconstructed_no_taper_e3_e5
+groups:
+  A: held_out_training_or_internal_validation_station_noise
+  B: unseen_final_station_noise
+bootstrap_seed: 20260611
+regression_and_matching_bootstrap_replicates: 1000
+unadjusted_bootstrap_replicates: 20000
+matching_caliper: 2.5
+covariates:
+  - target_snr_db
+  - log10_noise_rms_injection_10s
+  - dominant_freq_hz
+  - spectral_slope_1_20
+  - log10_high_low_bandpower_ratio
+  - frame_rms_cv_4s
+station_matching_covariates:
+  - noise_rms_full_mean
+  - dominant_freq_hz_mean
+  - spectral_slope_1_20_mean
+  - frame_rms_cv_4s_mean
+notes: >
+  No model inference, checkpoint selection, E3/E5 prediction generation, or metric values are changed by this closure.

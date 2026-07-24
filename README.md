@@ -8,23 +8,23 @@ licensed under the Creative Commons Attribution 4.0 International License
 (CC BY 4.0). Third-party software and data remain under their original licenses
 and terms.
 
-Version: v1.0.4.
+Version: v1.0.5.
 
-The manuscript-matched v1.0.4 package is available from the GitHub Release:
+The manuscript-matched v1.0.5 package has been staged in this repository and
+is prepared for the GitHub Release:
 
-https://github.com/GANjj01/seismic-denoising-eval-protocol/releases/tag/v1.0.4
+https://github.com/GANjj01/seismic-denoising-eval-protocol/releases/tag/v1.0.5
 
-The v1.0.4 Zenodo version DOI is:
-
-https://doi.org/10.5281/zenodo.21516779
+The v1.0.5 Zenodo version DOI will be assigned after archival.
 
 The project concept DOI, which resolves to the complete version history, is:
 
 https://doi.org/10.5281/zenodo.20681569
 
-The v1.0.4 package adds the reconstructed no-taper E3/E5 artifacts, Table
-10/12 rebuild scripts, validation reports, and terminology cleanup without
-overwriting the preserved v1.0.3 release state.
+The v1.0.5 package repairs the formal release package for the reconstructed
+no-taper E3 confounding closure by adding package-portable recomputation,
+fresh-extract validation, license/environment metadata, checksum audits, and
+terminology mapping without overwriting the preserved v1.0.4 release state.
 
 This repository supports the manuscript:
 
@@ -88,7 +88,8 @@ seismic-denoising-eval-protocol/
   configs/                        schema and example path config
   environments/                   conda environment exports
   training/                       CovNorm case-study provenance tables
-  releases/v1.0.4/                manuscript-matched reconstructed E3/E5 package
+  releases/v1.0.4/                preserved manuscript-matched reconstructed E3/E5 package
+  releases/v1.0.5/                formal E3 closure package with fresh-extract validation
 ```
 
 The reusable evaluation interface is separated from the full CovNorm training
@@ -194,7 +195,8 @@ are public under `training/`.
 This repository is archived on Zenodo under the concept DOI
 [`10.5281/zenodo.20681569`](https://doi.org/10.5281/zenodo.20681569).
 
-Each versioned release is preserved as a separate Zenodo record. For exact
-reproduction of the manuscript-matched v1.0.4 materials, cite the version DOI
+Each versioned release is preserved as a separate Zenodo record. The v1.0.5
+version DOI will be assigned by Zenodo after archival. For exact reproduction
+of the preserved manuscript-matched v1.0.4 materials, cite the version DOI
 [`10.5281/zenodo.21516779`](https://doi.org/10.5281/zenodo.21516779). The
 concept DOI provides access to the complete version history.

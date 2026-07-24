@@ -1,0 +1,43 @@
+{
+  "command": [
+    "python",
+    "analysis/scripts/rebuild_e3_no_taper_confounding_closure.py"
+  ],
+  "config": {
+    "bootstrap_seed": 20260611,
+    "covariates": [
+      "target_snr_db",
+      "log10_noise_rms_injection_10s",
+      "dominant_freq_hz",
+      "spectral_slope_1_20",
+      "log10_high_low_bandpower_ratio",
+      "frame_rms_cv_4s"
+    ],
+    "matching_caliper": 2.5,
+    "regression_and_matching_bootstrap_replicates": 1000,
+    "station_covariates": [
+      "noise_rms_full_mean",
+      "dominant_freq_hz_mean",
+      "spectral_slope_1_20_mean",
+      "frame_rms_cv_4s_mean"
+    ],
+    "unadjusted_bootstrap_replicates": 20000
+  },
+  "generated_utc": "2026-07-23T23:53:25+00:00",
+  "git_head": "3a57199d02e46cfce92b8f7ec604560eec9da563",
+  "inputs": {
+    "manifest": "reconstructed_no_taper_e3_e5/manifests/e3_no_taper_manifest.csv",
+    "manifest_sha256": "8d065333c5e8dec4331e8440c5d83c1cb98709ebe8930fbb29f50ea59990a481",
+    "no_taper_table": "reconstructed_no_taper_e3_e5/tables/e3_reconstructed_no_taper_table.csv",
+    "no_taper_table_sha256": "167dbe6e6a36d015ea424fce667e49d151163183ad209afd6edd5ef161df02c1",
+    "wide_metrics": "reconstructed_no_taper_e3_e5/metrics/e3_detail_wide.csv",
+    "wide_metrics_sha256": "f79c6bc2aeeec81436bc6d67b8d4d56da1a88f861d5824b93c6345403ee5202d"
+  },
+  "outputs": {
+    "case_covariates": 1632,
+    "covariate_failures": 0,
+    "direction_rows": 32,
+    "matched_pairs": 15,
+    "outcome_rows": 13056
+  }
+}

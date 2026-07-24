@@ -1,13 +1,13 @@
 # Manifest
 
-Version: v1.0.4.
+Version: v1.0.5.
 
-The v1.0.4 manuscript-matched release package is staged in
-`releases/v1.0.4/` and does not overwrite the preserved v1.0.3 tag or release.
-The public GitHub Release is
-<https://github.com/GANjj01/seismic-denoising-eval-protocol/releases/tag/v1.0.4>.
-The v1.0.4 Zenodo version DOI is <https://doi.org/10.5281/zenodo.21516779>;
-the project concept DOI is <https://doi.org/10.5281/zenodo.20681569>.
+The v1.0.5 manuscript-matched release package is staged in
+`releases/v1.0.5/` and does not overwrite the preserved v1.0.4 tag or release.
+The public GitHub Release will use
+<https://github.com/GANjj01/seismic-denoising-eval-protocol/releases/tag/v1.0.5>.
+The v1.0.5 Zenodo version DOI will be assigned after archival; the project
+concept DOI is <https://doi.org/10.5281/zenodo.20681569>.
 
 ## Reusable Protocol Code
 
@@ -111,12 +111,18 @@ report-card reproduction, or CovNorm case-study audit tables.
 - `LICENSE-CODE`
 - `LICENSE-DATA`
 - `RELEASE_NOTES_v1.0.3.md`
+- `releases/v1.0.5/README.md`
+- `releases/v1.0.5/RELEASE_NOTES_v1.0.5.md`
+- `releases/v1.0.5/SHA256SUMS.txt`
+- `releases/v1.0.5/scripts/verify_release_artifacts.py`
 - `releases/v1.0.4/README.md`
 - `releases/v1.0.4/RELEASE_NOTES_v1.0.4.md`
 - `releases/v1.0.4/FINAL_RELEASE_VALIDATION.md`
 - `releases/v1.0.4/GITHUB_RELEASE_HANDOFF.md`
 - `releases/v1.0.4/PUBLIC_SHA256SUMS.txt`
 - `releases/v1.0.4/scripts/verify_release_artifacts.py`
+- `seismic-denoising-eval-protocol_v1.0.5.zip`
+- `seismic-denoising-eval-protocol_v1.0.5.zip.sha256`
 - `seismic-denoising-eval-protocol_v1.0.4.zip`
 - `seismic-denoising-eval-protocol_v1.0.4.zip.sha256`
 - `SHA256SUMS.txt`

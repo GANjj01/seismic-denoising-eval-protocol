@@ -1,0 +1,940 @@
+\documentclass[review,12pt,authoryear]{elsarticle}
+
+\usepackage{amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{placeins}
+\usepackage{lineno}
+\usepackage[hidelinks]{hyperref}
+
+\journal{Artificial Intelligence in Geosciences}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\emergencystretch}{2em}
+\newcommand{\lpol}{\lambda_{\mathrm{pol}}}
+\newcommand{\snrclean}{\mathrm{SNR}_{\mathrm{clean}}}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{A Reproducible Evaluation Protocol for Self-Supervised Three-Component Blind-Spot Seismic Denoising}
+
+\author[aff1]{Jiajing Gan}
+\ead{gjj.research@gmail.com}
+
+\author[aff1]{Takato Takemura\corref{cor1}}
+\ead{takemura.takato@nihon-u.ac.jp}
+
+\cortext[cor1]{Corresponding author.}
+
+\address[aff1]{Geomechanics Laboratory, Department of Earth and Environmental Sciences, College of Humanities and Sciences, Nihon University, 3-25-40 Sakurajosui, Setagaya-ku, Tokyo 156-8550, Japan}
+
+\begin{abstract}
+Self-supervised blind-spot learning is attractive for seismic denoising because clean field targets are rarely available, but common evaluation practice can be misleading. Masked-validation loss need not track waveform recovery, and apparent signal-to-noise ratio (SNR) can reward background suppression rather than preserved signal. We present a reproducible evaluation protocol for single-station, three-component blind-spot seismic denoising based on station-disjoint splits, frozen checkpoint selection, multi-metric report cards, identity and adversarial baselines, station-level bootstrap 95\% confidence intervals (CIs), station-leakage tests, evaluator-held pseudo-clean target audits, and multi-seed diagnostics.
+
+We instantiate the protocol on 54 Raspberry Shake AM network stations and provide frozen splits, per-case metric tables, report-card utilities, matched baselines, and environment specifications through the accompanying public repository and versioned Zenodo archive. The empirical scope is a single low-cost sensor family. The geographic distribution of these stations reflects sampling coverage, not demonstrated global or cross-instrument generalization. Under the primary no-taper controlled reference-based mixture evaluation, synchronized-mask Noise2Void (N2V-sync) has a small positive clean-SNR gain (+0.200 dB [0.138, 0.265]) and stronger background suppression (+0.318 dB [0.154, 0.521]), with station-level 95\% CIs excluding zero, while waveform-correlation delta remains slightly negative (-0.0026 [-0.0042, -0.0011]). Covariance Normalization (CovNorm), our worked case study yielding a negative result, changes optimization and covariance-side diagnostics but does not produce station-resolved waveform-recovery gains. The principal contribution is therefore the evaluation protocol and its auditable pipeline self-check, illustrated through a worked case study yielding a negative result on a single Raspberry Shake sensor family.
+
+\end{abstract}
+
+\begin{keyword}
+seismic denoising \sep self-supervised learning \sep blind-spot learning \sep waveform recovery \sep evaluation protocol \sep Raspberry Shake
+\end{keyword}
+
+\end{frontmatter}
+\linenumbers
+
+\section{Introduction}
+Self-supervised denoising methods are increasingly attractive for seismic data because clean field waveforms are rarely available. Blind-spot learning in particular can train from noisy observations by hiding samples and reconstructing them from neighboring context \citep{birnie2021,birnie2022,krull2019}. For low-cost single-station instruments such as Raspberry Shake, this is practically appealing: a method can be trained from three-component records without constructing supervised clean/noisy pairs \citep{anthony2019,raspberryshake2016}. Our evaluation keeps this single-station input setting, but it is not geographically local: the predefined split uses 54 Raspberry Shake AM network stations distributed across the Americas, Europe/Africa, and Asia/Oceania.
+
+Existing seismic denoising studies illustrate both the opportunity and the evaluation gap. DeepDenoiser established a strong supervised neural reference and reported large SNR gains together with waveform-shape behavior \citep{zhu2019}, and deep-learning-based urban seismic noise suppression has been studied under a supervised urban-monitoring setting \citep{yang2022}. Self-supervised seismic denoising work often reports peak-SNR, noise reduction, and signal-leakage diagnostics on within-study data splits \citep{birnie2021,birnie2022}. Open benchmark datasets and reproducible evaluation protocols have increasingly been introduced for deep-learning seismic denoising \citep{barros2026}. These studies are valuable baselines, but they do not by themselves provide the station-disjoint, multi-metric protocol used here for deciding whether an apparent denoising gain transfers across station environments.
+
+This gap is striking because neighboring seismic ML tasks have moved toward explicit benchmarking. Deep learning is now applied across a wide range of seismological tasks, including denoising, detection, and phase picking \citep{mousavi2022,zhu2019}. SeisBench standardizes datasets, models, and processing for machine learning in seismology \citep{woollam2022}, and large picker benchmarks evaluate cross-domain transfer across multiple datasets and models \citep{munchmeyer2022}. The denoising setting has not yet had an equivalent protocol for self-supervised single-station waveform recovery. More broadly, ML benchmarking and reproducibility studies show that seed variance, data sampling, baseline choice, and reporting practice can materially change conclusions \citep{bouthillier2021,dodge2020,henderson2018,lones2021,pineau2021}. We treat evaluation design as part of the contribution rather than scaffolding around the method, because without it the method claims cannot be interpreted.
+
+The same setting also makes evaluation unusually fragile. A low masked-reconstruction loss does not imply clean waveform recovery, and apparent SNR can reward a method that suppresses the noise window while damaging signal amplitude. Familiar stations are a second trap: evaluating on new time periods from training stations is often easier than transferring to unseen environments. Selection adds two more: a small development set can pick different checkpoints under resampling, and a single training seed can turn seed-specific behavior into a method-level narrative. Finally, hundreds of windows from the same stations are not independent, so treating them as such narrows the confidence intervals beyond what the data support.
+
+This paper treats those issues as the main object of study. We propose a reproducible evaluation protocol for self-supervised single-station, three-component denoising, and we report our own attempt at a physically motivated method, Covariance Normalization (CovNorm), as the worked case that motivated it. CovNorm is introduced in Section~\ref{sec:case}; the Introduction focuses on why the evaluation problem requires a protocol rather than a single headline metric. If a protocol cannot separate changed optimization and a plausible partial-success narrative from externally validated waveform recovery, it is not strong enough for this problem.
+
+Based on this background, this study addresses the following objectives:
+\begin{itemize}
+    \item define a six-pillar evaluation protocol for self-supervised three-component seismic denoising, instantiated here on a single Raspberry Shake sensor family, covering external checkpoint selection, multi-metric report cards with identity/adversarial controls, station-disjoint final testing, development-set stability auditing, multi-seed method comparison, and station-level inference, plus a protocol self-audit of the pseudo-clean target;
+    \item provide a public evaluation package with frozen 54-station splits, controlled reference-based mixtures (with evaluator-held pseudo-clean references hidden from all models), per-case metric tables, matched baseline outputs, recovery-probe and polarization-rescoring utilities, environment files, smoke tests for reproducing report cards, and training-side provenance tables for the CovNorm case study;
+    \item use the CovNorm case study to test whether the protocol can separate optimization dynamics from external waveform recovery and identify specific evaluation failure modes, including validation-loss proxy error, metric gaming, identity-like behavior, station leakage, seed sensitivity, and pseudo-clean target artifacts.
+\end{itemize}
+
+\section{Evaluation Protocol}
+\label{sec:protocol}
+The protocol is designed around explicit evaluation failure modes rather than around a single model family. Figure~\ref{fig:protocol_flow} summarizes the overall data flow, and Table~\ref{tab:pillars} lists the corresponding protocol pillars and empirical checks. In Table~\ref{tab:pillars}, $\lpol$ is the polarization-regularization weight of the CovNorm case study (Section~\ref{sec:case}); $\lpol=0$ corresponds to standard blind-spot training without polarization regularization.
+
+\begin{table}[!htbp]
+\centering
+\caption{Six core model-comparison pillars and their empirical checks, plus the E7 protocol self-audit.}
+\label{tab:pillars}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}p{0.19\linewidth}YY@{}}
+\toprule
+Pillar & Failure mode defended against & Empirical check \\
+\midrule
+External checkpoint selection & Self-supervised validation loss ranks checkpoints by masked reconstruction, not necessarily external real-event report-card performance & E1: validation-loss ranking versus development and external real-event final-set rankings \\
+Multi-metric report cards & Apparent SNR can be inflated by suppressing the noise interval or the whole waveform; high amplitude can reflect a no-op mapping & E2 plus identity/Noise2Void (N2V) controls: adversarial baselines, DeepDenoiser comparison, no-op baseline, and controlled recovery probe \\
+Station-disjoint final testing & Same-station evaluation can confound method performance with station-specific noise familiarity & E3: training-station held-out noise versus unseen-station noise \\
+Development-set stability audit & A small development set can select unstable checkpoints and be sensitive to which development stations are included & E4: within-seed bootstrap, between-seed selected-epoch dispersion, and post-hoc station-subset composition audit \\
+Multi-seed method comparison & One seed can turn training noise into an apparent method effect & E5: paired seeds for $\lpol=0$ and $\lpol=0.5$ \\
+Station-level inference & Window-level bootstrap ignores station clustering and narrows intervals & E6: window versus station bootstrap calibration \\
+\midrule
+Protocol self-audit & Pseudo-clean construction can bias target-dependent metrics & E7: pseudo-clean target sensitivity \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The first six rows are the core model-comparison claims tested in the present results. E7 is kept adjacent because a protocol that evaluates other methods should also detect artifacts in its own target construction. The same report-card interface is then used to add matched 3C N2V and identity baselines in the results.
+
+Figure~\ref{fig:protocol_flow} should be read as a data-role and decision-order diagram rather than as a model architecture. The top row constructs event and noise windows from Raspberry Shake AM stations after catalog matching and quality control (QC). The lower lanes then separate model fitting/internal validation, development checkpoint selection, and final controlled reference-based evaluation. In this figure and throughout the manuscript, frozen means that station lists, data roles, time windows, preprocessing settings, and checkpoint-selection rules were fixed before final evaluation and were not changed after inspecting final-test results. The identity/adversarial controls and pseudo-clean audit boxes are outside the training lane because they test the evaluation protocol itself rather than add another trainable model. Here, 3C denotes three-component.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{figures/fig01_protocol_flow.pdf}
+    \caption{Protocol overview and frozen data flow. Bold lanes separate training/internal validation, development checkpoint selection, and final controlled reference-based evaluation.}
+    \label{fig:protocol_flow}
+\end{figure}
+
+\subsection{Data roles and frozen splits}
+Table~\ref{tab:data_roles} defines the role of each subset. The development set is not a final test; it is a frozen model-selection instrument. Here, frozen means that the data roles, station lists, time windows, preprocessing settings, and checkpoint-selection rule were fixed before final evaluation and were not changed after inspecting final-test results. The final real-event test and controlled reference-based mixture evaluation are used after selection. All waveform records and station metadata used in this study were obtained from the Raspberry Shake AM network distributed through International Federation of Digital Seismograph Networks (FDSN) services \citep{raspberryshake2016}. The split covers 54 globally distributed Raspberry Shake AM stations: 15 training/internal-validation stations, 5 development stations, and 34 final-test stations (Figure~\ref{fig:station_map}). The final set is station-disjoint but regionally imbalanced, with only two stations in Asia/Oceania; regional subgroup summaries are therefore descriptive. Figure~\ref{fig:station_map} uses station coordinates from Raspberry Shake AM metadata, Natural Earth 50 m coastlines in a PlateCarree projection, and light visual jitter only where stations overlap \citep{naturalearth2024,raspberryshake2016}. Using one sensor family reduces instrument-response confounding, while the station geography exposes the protocol to diverse cultural-noise and site environments.
+
+\begin{table}[!htbp]
+\centering
+\caption{Data subsets and roles.}
+\label{tab:data_roles}
+\begin{tabularx}{\linewidth}{lYY}
+\toprule
+Subset & Size & Role \\
+\midrule
+Training/internal validation & 15 stations; 1,602 event and 9,086 noise windows before splitting & model fitting and self-supervised diagnostics \\
+Development & 25 event windows; 5 unseen stations & frozen all-epoch checkpoint selection \\
+Final real events & 272 event windows; 34 further unseen stations & station-disjoint real-event report card \\
+Controlled reference-based mixtures & 816 mixtures; 272 templates $\times$ target SNRs -5, 0, and +5 dB & evaluator-held pseudo-clean recovery test in held-out real noise \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig02_station_distribution_map.pdf}
+    \caption{Station-disjoint training, development, and final evaluation stations. Symbols mark the three station roles; slight visual jitter separates overlapping stations.}
+    \label{fig:station_map}
+\end{figure}
+
+\subsection{Metrics}
+Real-event apparent signal-to-noise ratio (SNR) gain is reported with amplitude ratio and trigger delay. In the controlled reference-based mixtures, we report clean-SNR gain relative to the noisy input, amplitude ratio, waveform correlation, and background suppression. Clean-SNR is a reference-relative score computed against the specified evaluator-held pseudo-clean construction. It is not interpreted as an absolute measure of true field-waveform recovery. All target-dependent recovery metrics, including clean-SNR, amplitude ratio, waveform correlation, covariance-shape distance, and principal-axis angle, should therefore be interpreted relative to the stated pseudo-clean construction rather than as direct access to an unobserved true field waveform. Apparent SNR is never interpreted alone.
+
+Scoring bases and target definitions. This study uses two scoring bases. The first is external real-event scoring, which uses apparent-SNR, amplitude-ratio, and trigger diagnostics without a clean or pseudo-clean scoring reference. It is therefore independent of the evaluator-held reference target definition, although apparent SNR remains subject to the failure modes examined in E2. This basis includes Table~\ref{tab:e1_corr}, Figure~\ref{fig:e1_ranking}, and Panel A of Table~\ref{tab:e2_report}.
+
+The second basis is controlled-mixture scoring with an evaluator-held pseudo-clean reference. We use no-onset-taper to denote removal of the onset ramp within the evaluator-held reference window. For brevity, this is termed the no-taper reference below; all other filtering, pre-P zeroing, truncation, and mixture-construction steps remain unchanged. The no-taper reference is the primary target definition for the target-dependent controlled-mixture report cards and recovery audits reported in Tables~\ref{tab:e2_report}, \ref{tab:m4_identity}, \ref{tab:identity_bootstrap}, \ref{tab:polarization_rescore}, \ref{tab:e6_bootstrap}, and~\ref{tab:recovery_probe}. The reference is hidden from all evaluated models, and the no-taper reference affects evaluator-side target-dependent scoring only; models, checkpoints, mixtures, and method outputs are otherwise held fixed where possible. The submitted tapered construction is retained in E7 as a sensitivity/provenance comparison, and the target-definition sensitivity finding is summarized here before the primary controlled-mixture results while the complete audit remains in E7.
+
+Within the controlled-mixture basis, Tables~\ref{tab:e3_leakage} and~\ref{tab:e5_performance} are reconstructed paired-contrast diagnostics rather than primary report-card rankings. The submitted analysis retained aggregate results, configurations, and checkpoint identities, but did not include an exact per-sample event--noise pairing manifest sufficient for a sample-identical replay of the historical E3/E5 mixtures. New reconstruction manifests were therefore generated and frozen before rescoring; they are not recovered historical manifests. E3 contains 1,632 cases and 13,056 method-case rows; E5 contains 816 cases and 8,160 method-case rows; both reconstructions had zero failed cases. The frozen manifests record \texttt{taper\_applied=false}, event--noise pairings, analysis windows, RMS and scaling coefficients, raw-data hashes, checkpoint/configuration hashes, and sample-level artifacts. Inference and scoring read these frozen manifests.
+
+Table~\ref{tab:metric_definitions_compact} summarizes the main report-card directions. Apparent SNR and background suppression are interpreted only jointly with waveform-fidelity metrics, because either can increase when signal content is attenuated. Detailed model, training, masking, selection, inference, analysis-timeline, and SNR-stratified provenance tables are provided in the supplementary material.
+
+\begin{table}[!htbp]
+\centering
+\caption{Compact metric definitions and directions. Raw covariance distance and covariance gain have opposite directions.}
+\label{tab:metric_definitions_compact}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth}>{\raggedright\arraybackslash}p{0.48\linewidth}>{\raggedright\arraybackslash}p{0.22\linewidth}@{}}
+\toprule
+Metric & Definition role & Direction \\
+\midrule
+Apparent SNR & Real-event pre-P/post-P energy contrast without clean reference & Higher can mean suppression; interpret with fidelity \\
+Clean-SNR gain & Output-to-evaluator-held reference SNR minus noisy-input SNR & Higher is better \\
+Amplitude ratio & 95th-percentile output amplitude relative to raw event or reference & Closer to one is better \\
+Waveform correlation & Best-lag normalized cross-correlation in the P+10 s window & Higher is better \\
+Background suppression & Background RMS reduction outside the event-exclusion region & Positive/larger means stronger suppression; interpret with fidelity \\
+Raw covariance distance & Frobenius distance between trace-normalized covariance shapes & Lower is better \\
+Covariance gain vs identity & Identity distance minus method distance & Higher is better \\
+Trigger delay & Real-event trigger timing shift when applicable & Smaller absolute delay is better \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+For paired method differences, the default uncertainty estimate is a station-level paired bootstrap confidence interval (CI). The primary estimand is the equal-weight mean paired performance across the 34 observed final-test event-template stations. Event templates, their three SNR realizations, and repeated within-station cases are treated as dependent observations nested within event-template station: case-level differences are first averaged within station, and stations are then resampled with equal weight. The primary configuration uses B=20,000 replicates, percentile 95\% intervals, seed 20260611, and matched complete cases. Window-level bootstrap is used only as a diagnostic in E6 to demonstrate how much narrower it is. Design exceptions are stated where used: the station-leakage audit resamples the A/B station groups independently, Tables~\ref{tab:polarization_rescore} and~\ref{tab:recovery_probe} retain B=5,000 diagnostic intervals, and the target-validation sensitivity audit uses a reference-level bootstrap. For the B=5,000 target-property and recovery-probe diagnostics, a B=20,000 sensitivity recomputation changed no zero-exclusion conclusions. This station-level procedure accommodates arbitrary dependence among cases within an observed event-template station, including repeated SNR realizations of the same event template. It does not separately estimate uncertainty from sampling new events within a fixed station, and an audit found some cross-station dependence through reused or non-template-station noise windows; those dependencies are recorded as limitations rather than silently treated as resolved by the station bootstrap.
+
+The experiments intentionally compare many methods, metrics, and failure modes. For that reason, isolated interval exclusions are not treated as multiplicity-controlled hypothesis tests. We use resolved positive or resolved negative descriptively when the corresponding 95\% CI excludes zero. These labels do not denote multiplicity-adjusted hypothesis tests. The evidential claims are based on prespecified contrasts, station-level intervals, direction consistency across metrics or seeds, and counterexamples that demonstrate failure modes.
+
+\subsection{Baselines and comparison roles}
+Table~\ref{tab:baseline_fairness} defines the comparison roles before the baseline results are interpreted. DeepDenoiser is a supervised external reference under a different training regime, so it is not used to create a unified ranking across supervision regimes. The Idealized Wiener source-aware diagnostic is separated from the deployable Wiener-blind baseline and is retained only as a supplementary diagnostic.
+
+\begin{table}[!htbp]
+\centering
+\caption{Baseline roles and final-set adaptation policy. DeepDenoiser is an external supervised reference under a different training regime, so it is not used to create a unified ranking across supervision regimes.}
+\label{tab:baseline_fairness}
+\scriptsize
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.16\linewidth}>{\raggedright\arraybackslash}p{0.17\linewidth}>{\raggedright\arraybackslash}p{0.17\linewidth}>{\raggedright\arraybackslash}p{0.17\linewidth}>{\raggedright\arraybackslash}p{0.23\linewidth}@{}}
+\toprule
+Method & Role & Training data & Input/preproc. & Parameter policy \\
+\midrule
+Identity & No-op control & none & 3C input unchanged & no parameters; no adaptation \\
+AdvGate, AdvShrink, AdvScale & Adversarial controls & none & matched evaluation inputs & fixed diagnostic baselines; no final-set tuning \\
+N2V point, sync & self-supervised references & single-station blind-spot training & 3C, same preprocessing as CovNorm family & frozen checkpoints; no final-set adaptation \\
+CovNorm family & worked case study & self-supervised blind-spot with covariance regularization & 3C, same preprocessing across $\lpol$ & frozen development selection; no final-set adaptation \\
+DeepDenoiser & supervised external reference & external supervised training regime & applied through released interface & external reference only; no unified ranking \\
+Wiener-blind & blind signal-processing reference & none & component-wise PSD median from low-energy frames & submitted default frame 4.0 s, hop 2.0 s, low-energy fraction 0.30; no final-set optimization \\
+Idealized Wiener (source-aware diagnostic) & source-aware diagnostic & none & uses clean/noise decomposition available only to evaluator & supplementary diagnostic only; not a deployable baseline \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section{CovNorm Case Study}
+\label{sec:case}
+CovNorm is a single-station, three-component blind-spot Transformer regularizer that we developed to test whether enforcing polarization structure would improve low-SNR recovery. It matches trace-normalized covariance matrices of the masked predicted and observed Z/N/E samples, on the hypothesis that enforcing three-component polarization structure would improve recovery at low SNR. We present it here as the worked case for the protocol because its development-side behavior, including a physically interpretable loss, altered training dynamics, and an apparent optimization benefit, is representative of how a plausible method earns provisional confidence before external recovery is checked.
+
+In development, CovNorm produced exactly the partial signals that can make a method look promising before external recovery is audited: the loss is physically interpretable, development-set amplitude improved under stronger regularization, one seed suggested an amplitude--SNR trade-off, and the regularizer measurably changed training dynamics. It also carries a conceptual risk we did not initially weigh heavily enough: because the target covariance is computed from the noisy masked observation, at low SNR it may describe correlated noise rather than clean particle motion. Whether these encouraging signals reflected externally validated denoising could not be settled from development-side evidence alone, and resolving that question is the role of the protocol.
+
+A synchronized temporal mask hides the same samples on Z/N/E to prevent direct cross-component copying. The architecture, training data, optimizer, and inference protocol are held fixed while the polarization-regularization weight, $\lpol$, is varied over $\{0,0.1,0.5\}$; $\lpol=0$ disables the CovNorm penalty and serves as the matched no-physics baseline.
+
+For a masked sample set $S$, CovNorm computes a 3-by-3 covariance matrix over the predicted Z/N/E samples and another over the noisy target samples. Each covariance is divided by its trace:
+\begin{equation}
+\hat{\bm{C}} = \frac{\bm{C}}{\max(\operatorname{tr}\bm{C},\epsilon)} ,
+\end{equation}
+This trace normalization removes the overall amplitude (total variance) of the masked window and retains only the shape of the three-component covariance. Here, $\bm{C}$ denotes either the predicted or target three-component covariance matrix computed over the masked samples, $\hat{\bm{C}}$ is its trace-normalized form, $\operatorname{tr}\bm{C}$ is the sum of the diagonal variances, and $\epsilon$ is a small numerical constant used to avoid division by zero. Low-energy targets are skipped using a target-trace confidence threshold. The total loss is
+\begin{equation}
+\mathcal{L}=\mathcal{L}_{\mathrm{recon}}+\lpol\mathcal{L}_{\mathrm{CovNorm}}.
+\end{equation}
+Here, $\mathcal{L}_{\mathrm{recon}}$ is the masked-reconstruction loss on the held-out samples, $\mathcal{L}_{\mathrm{CovNorm}}$ denotes the squared Frobenius distance between the predicted and target normalized covariance matrices, and $\lpol$ controls the strength of the polarization regularization.
+The target-trace gate is a numerical confidence filter, not a guarantee that the retained target covariance is signal-dominated. In the completed multi-seed training logs, the confidence fraction is 1.000 for all 139 logged epochs and the minimum logged target trace is 0.0361, well above the 0.001 threshold. Thus the gate excludes no logged masked batches in these runs. This is important for interpretation: at low SNR, the observed target covariance can still be dominated by correlated noise polarization even when its trace is safely above the numerical floor.
+
+\subsection{Noise correlation diagnostic}
+\label{sec:noise_corr}
+Because the theoretical failure mode depends on correlated noise, we measured this property directly in the held-out continuous-noise pool used for the controlled reference-based evaluation. All waveform windows were resampled to 100 Hz and band-pass filtered between 1 and 20 Hz before evaluation; the same evaluation preprocessing band was used for the noise-correlation diagnostic. Figure~\ref{fig:noise_corr} summarizes 180 randomly sampled final-pool continuous-noise windows from 38 globally distributed stations after this preprocessing, complementing the 34 final event-template stations shown in Figure~\ref{fig:station_map}. The 38-station diagnostic noise pool is not identical to the 34-station final event-template pool: it contains 33 final-test event stations plus all five development stations, while final event station R0BD5 has no retained noise-correlation diagnostic window in the released table. To match the station-level inference principle used elsewhere, windows are first summarized within station and the figure reports station-level medians and interquartile range (IQR) bands.
+
+The shaded band represents the IQR of station-level summaries. For comparison, the dashed autocorrelation lines show the approximate white-noise 95\% opportunity band, $\pm 2/\sqrt{N}$, where $N$ is the median window length. In the coherence panel, the dotted line shows the approximate finite-Welch independence mean, $1/K$, and the dashed line shows the corresponding approximate 95\% threshold, where $K$ is the effective number of Welch segments.
+
+The Z-component autocorrelation exceeds the white-noise opportunity band over sub-second to second-scale lags. With median window length 18,160 samples, the approximate white-noise 95\% band is $\pm 2/\sqrt{N}=\pm 0.0148$; the station-median absolute autocorrelation is 0.062 at 0.5 s and 0.056 at 1.0 s, and the station-median mean absolute autocorrelation over 0.1--2 s is 0.068. Cross-component magnitude-squared coherence also exceeds the finite-Welch independence baseline. With 1024-sample Welch segments and 50\% overlap, the effective segment count is about 34, giving an approximate independence mean of $1/K=0.029$ and 95\% threshold of 0.087. The station-median 1--20 Hz mean coherence is 0.138 for Z--N, 0.129 for Z--E, and 0.127 for N--E.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig03_noise_correlation_diagnostic.pdf}
+    \caption{Held-out continuous-noise autocorrelation and coherence diagnostics. The left panel shows station-level Z-component autocorrelation versus lag; the solid curve is the station median and the shaded band is the station IQR. Dashed horizontal lines mark the white-noise opportunity band, $\pm 2/\sqrt{N}$, for the median window length $N$. The right panel shows mean 1--20 Hz magnitude-squared coherence for Z--N, Z--E, and N--E; the dotted line marks the finite-Welch independence mean $1/K$, and the dashed line marks the corresponding approximate 95\% threshold.}
+    \label{fig:noise_corr}
+\end{figure}
+
+\section{Results}
+\subsection{E1: validation loss, development rule, and external real-event ranking diverge}
+\label{sec:e1}
+The first failure mode is treating self-supervised validation loss as a proxy for external real-event report-card performance. For each original $\lpol$ run, all saved epochs were ranked three ways: by validation loss ($R_{\mathrm{val}}$), by the frozen development rule ($R_{\mathrm{dev}}$), and by a retrospective external real-event final-set ranking ($R_{\mathrm{final}}$). $R_{\mathrm{final}}$ was computed from the frozen external real-event report card using apparent-SNR gain and amplitude-ratio criteria. It did not use an evaluator-held clean or pseudo-clean reference.
+Figure~\ref{fig:e1_ranking} shows the ranking divergence across epochs. The three curves compare epoch rankings induced by validation loss, the frozen development rule, and a retrospective external real-event final-set report-card ranking. The final ranking is diagnostic only and is not used for model selection. Table~\ref{tab:e1_corr} summarizes the corresponding rank correlations and selection regret. Its regret columns report the external real-event final-set difference between the development-rule checkpoint and the validation-loss checkpoint; positive values mean validation-loss selection was worse.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig04_e1_ranking_divergence.pdf}
+    \caption{E1 ranking divergence across saved epochs. Curves compare rankings induced by validation loss, the frozen development rule, and the retrospective external real-event final-set report card.}
+    \label{fig:e1_ranking}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption{E1 real-event final-set ranking correlations and validation-selection regret. This diagnostic uses external real-event final-set summaries rather than the evaluator-held pseudo-clean controlled-mixture target, so the no-taper target-definition audit does not change these values.}
+\label{tab:e1_corr}
+\small
+\resizebox{\linewidth}{!}{%
+\input{generated_tables/table03_e1_ranking_provenance.tex}}
+\end{table}
+
+Validation loss did not reliably track external real-event report-card performance in this setting, and its reliability also varies substantially from run to run. $\rho(R_{\mathrm{val}},R_{\mathrm{final}})$ ranges from near zero for $\lpol=0.5$ (0.019) and $\lpol=0$ (0.155) to a higher value for $\lpol=0.1$ (0.691). The $\lpol=0.1$ row was trained with a single seed and is shown for completeness; its ranking correlation is not used to support any multi-seed claim. Across the three runs in Table~\ref{tab:e1_corr}, the development-rule checkpoint exceeds the validation-loss checkpoint by a mean of 0.616 dB in final apparent-SNR gain and 0.075 in amplitude ratio; the corresponding medians are 0.192 dB and 0.0267. We do not read this as evidence that the development rule is intrinsically reliable. The point is narrower: validation loss is an unpredictable proxy in this setting, and even development-set selection needs the E4 stability audit to be trusted. The checkpoint-ranking and selection-regret tables used for this diagnostic are included in the public release.
+
+\subsection{E2: apparent SNR is vulnerable to adversarial baselines}
+\label{sec:e2}
+\subsubsection{Adversarial apparent-SNR baselines}
+Having shown that validation loss is an unreliable selection proxy, we next test a second evaluation failure mode: the possibility that apparent SNR can be increased by damaging the waveform or suppressing the noise window. We implemented three non-learning adversarial baselines. AdvGate uses a fixed short-term average/long-term average (STA/LTA) trigger to retain only detected segments and zero samples outside them. AdvShrink applies component-wise soft thresholding at three times the robust median absolute deviation, setting low-amplitude samples to zero and shrinking larger samples toward zero. AdvScale multiplies the whole trace by 0.01, preserving waveform shape up to scale while reducing absolute amplitude.
+Figure~\ref{fig:advgate} illustrates the AdvGate waveform effect: most of the pre-event noise interval is removed, so apparent SNR can increase even though the waveform is incomplete. Table~\ref{tab:e2_report} reports the corresponding multi-metric diagnostic. In that table, AdvGate's real-event value is the method mean over the 272-window real-event report card, and overlapping continuous-test entries for the CovNorm checkpoints are the same scoring values used in the identity-baseline report card below.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig05_e2_advgate_waveform.pdf}
+    \caption{E2 AdvGate waveform diagnostic. The gated output suppresses most pre-event/background samples, illustrating how apparent SNR can rise while waveform continuity is damaged.}
+    \label{fig:advgate}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption{E2 adversarial diagnostic and no-taper controlled reference-based report-card excerpt. Panel A uses final real-event apparent SNR and amplitude ratio, where AdvGate exposes the denominator-collapse failure mode. Panel B uses the controlled no-taper mixtures; background suppression is positive when the background is more strongly attenuated.}
+\label{tab:e2_report}
+\small
+\resizebox{\linewidth}{!}{\input{generated_tables/table04_report_card_notaper.tex}}
+\end{table}
+
+The $>250$ dB apparent gain is expected to look absurd: AdvGate drives the noise-window denominator toward zero. This is precisely the point. AdvScale shows the complementary failure mode: multiplying the whole trace by 0.01 leaves apparent SNR essentially unchanged, but produces about 40 dB of background suppression and nearly zero amplitude. A report card must include amplitude, correlation, and background suppression, or a method that damages the waveform can appear best.
+
+\subsubsection{Identity baseline and failure modes of context-only self-supervision}
+\label{sec:m4_identity}
+A no-op identity baseline, defined as output equal to input, was added to the report card to test whether self-supervised methods perform a meaningful operation beyond passing the mixture through. Table~\ref{tab:m4_identity} places the identity baseline alongside two standard 3C Noise2Void variants, matched in data, optimizer, normalization, and evaluation but differing in point versus synchronized masking, the three CovNorm Transformer checkpoints, DeepDenoiser, and Wiener-blind. All rows use the identical 816-case controlled reference-based pipeline and the same normalized cross-correlation (NCC) metric. Clean-SNR is reported as gain relative to the noisy input, so the identity baseline is zero by definition for every case. The overlapping CovNorm, DeepDenoiser, and Wiener-blind entries are the same scoring values shown in Table~\ref{tab:e2_report}.
+
+\begin{table}[!htbp]
+\centering
+\caption{No-taper identity baseline and matched method comparisons. DeepDenoiser is a supervised external reference; Wiener-blind uses the submitted default blind signal-processing configuration.}
+\label{tab:m4_identity}
+\small
+\resizebox{\linewidth}{!}{\input{generated_tables/table05_identity_report_notaper.tex}}
+\end{table}
+
+The controls expose four distinct behaviors. N2V remains close to the identity mapping while producing limited suppression-oriented gains. In particular, N2V-sync produced a small positive clean-SNR gain (+0.200 dB [0.138, 0.265]) and stronger background suppression (+0.318 dB [0.154, 0.521]), with station-level 95\% confidence intervals excluding zero, but this is mixed evidence because its waveform-correlation delta remains slightly but resolvedly below identity (-0.0026 [-0.0042, -0.0011]). CovNorm actively reshapes the waveform and reduces waveform correlation. DeepDenoiser operates in a more aggressive suppression regime, with strong background attenuation but substantial amplitude loss. Wiener-blind provides the clearest clean-SNR improvement while retaining approximately identity-level waveform correlation. These behaviors should not be collapsed into a unified ranking because the comparison roles and supervision regimes differ.
+
+In contrast to the near-identity behavior of N2V, the CovNorm checkpoints actively reshape the waveform: they suppress background by about 5.7--5.9 dB, but clean-SNR is unresolved for $\lpol=0$ and resolved negative for $\lpol=0.1$ and $\lpol=0.5$, with waveform correlation dropping sharply. Relative to $\lpol=0$, neither regularized checkpoint produces a station-resolved waveform-recovery gain. This pattern indicates that trace-normalized covariance matching changes the output and can reduce background energy, but training-side or covariance-side signals cannot substitute for independent recovery evaluation.
+
+This correlation loss is not driven by a single geographic cluster. Grouping the 34 final stations into broad longitude regions gives negative station-mean correlation differences relative to identity for every CovNorm checkpoint in the Americas (23 stations; -0.298 to -0.321), Europe/Africa (9 stations; -0.280 to -0.312), and Asia/Oceania (2 stations; -0.256 to -0.274). Clean-SNR gain is more heterogeneous: $\lpol=0.5$ is negative in all three broad regions, whereas $\lpol=0$ and $\lpol=0.1$ include near-zero or positive regional means outside the Americas. The region-consistent claim is the Z-correlation collapse, not a uniform clean-SNR loss for every $\lpol$.
+SNR-stratified estimates and station-level intervals for the main controlled-mixture methods are provided in the supplementary material.
+
+Neither context-only self-supervised family reaches the desired combination of preserving waveform shape while suppressing background. This result also revises the interpretation of amplitude preservation. For the continuous-test amplitude ratio, the ideal value is 1.0 relative to the pseudo-clean target. Identity has a median ratio of 1.413 because added noise inflates the event-window amplitude; Wiener-blind is closer to amplitude fidelity (1.034), whereas CovNorm under-recovers amplitude (about 0.74--0.77) and DeepDenoiser strongly suppresses it (0.244). High amplitude retention alone does not demonstrate recovery, because the identity map can retain or inflate amplitude while doing no denoising; conversely, moderate amplitude can coexist with poor waveform fidelity. The identity baseline is a necessary report-card entry: without it, both failure modes would be easy to miss. Table~\ref{tab:identity_bootstrap} reports station-level paired intervals versus identity; correlation entries are differences from identity, while background suppression is already relative to the input.
+
+\begin{table}[!htbp]
+\centering
+\caption{Primary no-taper station-level paired intervals versus identity. The correlation entry is the NCC difference relative to identity. Intervals use the frozen primary bootstrap: station clusters, within-station means, equal station weighting, B=20,000, percentile 95\% CI, seed 20260611, and matched complete cases.}
+\label{tab:identity_bootstrap}
+\small
+\resizebox{\linewidth}{!}{\input{generated_tables/table06_identity_bootstrap_notaper.tex}}
+\end{table}
+
+To address the possibility that a Z-only waveform correlation could miss a three-component polarization benefit, we added a target-property rescoring pass on the same 816 controlled reference-based cases. This is a cheap evaluation extension rather than a new training experiment: the frozen checkpoints and mixtures are unchanged, and the stored case definitions are rescored with additional functions over the same P+10 s, three-component window. The primary metric is the trace-normalized covariance distance $D_{\mathrm{cov}}$, the Frobenius distance between trace-normalized 3C covariance matrices, reported as improvement over identity; the second is the reduction in principal-axis angle error relative to identity. Both are defined in the Appendix. Positive values mean the method is closer than the noisy input to the pseudo-clean template in that target property. Component-wise N/E correlations were also computed as supplementary audit outputs to check whether waveform-fidelity loss is confined to Z, but they are not included in the main-text Table~\ref{tab:polarization_rescore}. The trace floor used for covariance normalization excluded no cases in this 816-case audit.
+Table~\ref{tab:polarization_rescore} gives the 3C target-property report card.
+
+\begin{table}[!htbp]
+\centering
+\caption{No-taper three-component target-property rescoring. Effects are station-level estimates with B=5,000 percentile 95\% confidence intervals. Positive covariance gain means smaller raw covariance-shape distance than identity; positive axis-angle reduction means smaller principal-axis error.}
+\label{tab:polarization_rescore}
+\scriptsize
+\resizebox{\linewidth}{!}{\input{generated_tables/table07_polarization_rescore_notaper.tex}}
+\end{table}
+
+As with Z-component correlation, the covariance-shape metric is best read here as a damage detector rather than as a fine-grained recovery ranking. Band-pass and Wiener-blind are not resolved from identity in $D_{\mathrm{cov}}$ gain, so this metric does not show that they improve 3C covariance shape beyond the noisy input. Its main use is to reveal when a method moves the output covariance away from the pseudo-clean template, as the CovNorm checkpoints do.
+Figure~\ref{fig:covnorm_dcov_clean_noisy} separates distance to the noisy mixture from distance to the pseudo-clean template. Error bars are station-level bootstrap intervals. Increasing $\lpol$ from 0 to 0.5 moves the output covariance shape closer both to the noisy mixture and to the pseudo-clean template, but Table~\ref{tab:polarization_rescore} shows that the resulting clean-template covariance distance remains worse than the identity baseline.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/fig06_covnorm_covariance_audit.pdf}
+    \caption{CovNorm covariance-shape audit. Points and station-bootstrap intervals compare distance to the noisy mixture with distance to the pseudo-clean template.}
+    \label{fig:covnorm_dcov_clean_noisy}
+\end{figure}
+
+The 3C audit refines rather than reverses the report-card conclusion. Within the CovNorm family, stronger regularization improves covariance-shape distance relative to $\lpol=0$: $\lpol=0.5-\lpol=0$ gives a $D_{\mathrm{cov}}$ gain increase of +0.017 [0.004, 0.030] under station-level bootstrap. The corresponding principal-axis improvement is not resolved (+1.07 deg. [-0.50, 2.85]). Against the stricter identity comparator, however, all three CovNorm checkpoints are worse on both covariance shape and axis angle, and N/E correlations fall to the same low range as Z. Thus the negative waveform-fidelity result is not simply an artifact of measuring only the vertical component. The fairer interpretation is that CovNorm partially improves its own covariance target relative to an unregularized checkpoint, but this improvement does not produce externally validated 3C recovery beyond the noisy input.
+
+Because the mixture itself is correlated with the injected template, the correlation metric is best interpreted as a damage detector rather than as a recovery score in isolation. Identity correlation increases with target SNR: 0.511 at -5 dB, 0.707 at 0 dB, and 0.859 at +5 dB. N2V tracks this identity floor closely, while CovNorm remains far below it in every stratum (for $\lpol=0.5$: 0.261, 0.379, and 0.486). Wiener-blind also remains near the identity correlation floor (0.503, 0.706, and 0.861), so its advantage is clean-SNR gain and background suppression, not improved waveform correlation.
+
+\subsection{E3: familiar-versus-unseen station domain shift is method- and metric-dependent}
+\label{sec:e3}
+E3 tests whether evaluating on familiar station environments creates optimistic bias. We retain station-leakage audit as the protocol label, but the empirical A/B contrast is interpreted as familiar-versus-unseen station domain shift rather than as an identified causal effect of station memorization. During revision, this diagnostic was reconstructed under the frozen no-taper reference rather than relabeled from the submitted tapered artifact. The controlled design anchors both noise groups to the same 816 no-taper event-template cases, target SNR values, and hidden onset locations: A uses held-out noise from training/validation stations, while B uses unseen final-station noise. Leakage gain is metric(A) minus metric(B), with independent station-level bootstrap over the two station sets. Positive leakage gain means higher performance on held-out training/validation station noise than on unseen final-station noise.
+
+The reconstructed E3 manifest contains 1,632 cases and 13,056 method-case rows, with zero failed cases and \texttt{taper\_applied=false} for every row. It preserves event--noise pairings, windows, RMS/scaling coefficients, raw-data hashes, checkpoint/configuration hashes, and sample-level artifacts. The submitted analysis retained aggregate results and configurations but not an exact per-sample event--noise pairing manifest sufficient for a sample-identical replay; the reconstructed no-taper manifest is therefore a newly frozen diagnostic manifest, not the recovered historical manifest.
+Table~\ref{tab:e3_leakage} reports selected reconstructed no-taper station-leakage gains.
+
+\begin{table}[!htbp]
+\centering
+\caption{E3 reconstructed no-taper station-familiarity/domain-shift diagnostic, interpreted as familiar-versus-unseen station domain-shift contrasts rather than causal station-memorization estimates. Entries are A--B differences, where A uses held-out training/validation-station noise and B uses unseen final-station noise. Intervals are independent station-group bootstrap percentile 95\% CIs with equal station weighting. The Noisy row is the unprocessed-input sanity control; zero-valued gain contrasts are expected by construction where applicable. The Idealized Wiener row uses evaluator-side source decomposition and is included only as a source-aware sensitivity diagnostic; it is not a deployable baseline and is excluded from the principal report-card interpretation. This shared-target diagnostic is not a primary cross-method ranking and is not a historical sample-identical rerun of the submitted tapered E3 experiment.}
+\label{tab:e3_leakage}
+\small
+\resizebox{\linewidth}{!}{%
+\input{generated_tables/table10_e3_reconstructed_no_taper.tex}
+}
+\end{table}
+
+The familiar-versus-unseen station contrast is method- and metric-dependent rather than a uniform additive bonus. DeepDenoiser (+0.573 dB [0.143, 1.048]) and Wiener-blind (+0.558 dB [0.084, 1.084]) show positive clean-SNR A--B contrasts, whereas the self-supervised checkpoints are negative: $\lpol=0$ is -0.230 dB [-0.470, -0.011], $\lpol=0.1$ is -0.186 dB [-0.392, -0.001], and $\lpol=0.5$ is -0.211 dB [-0.439, -0.005]. Background-suppression A--B contrasts are not resolved for the principal report-card methods, with intervals spanning zero. Thus the reconstructed no-taper E3 contrast does not show a consistent advantage for the evaluated self-supervised checkpoints. The familiar-versus-unseen contrast is method- and metric-dependent and therefore cannot be summarized by a single pooled offset.
+
+We reran the spectral-balance, regression-adjustment, station-matching, and station-bootstrap closure on the reconstructed no-taper E3 manifest and its saved event--noise tensors. The station-level adjustment modeled each method--metric outcome as a function of an intercept, the familiar-versus-unseen group indicator ($A=1$, $B=0$), and z-scored covariates: target SNR, log10 injection-window noise RMS, dominant 1--20 Hz frequency, 1--20 Hz spectral slope, log10 high/low bandpower ratio, and 4 s frame-RMS coefficient of variation. The model used ordinary least squares with no interactions, no weights, and no robust covariance estimator; uncertainty used station-cluster percentile bootstrap with 1,000 replicates and seed 20260611. Matching used prespecified greedy 1:1 nearest neighbors without replacement on standardized station-level noise RMS, dominant frequency, spectral slope, and 4 s frame-RMS variation, with Euclidean distance, caliper 2.5, and deterministic station-name tie breaking.
+
+The prespecified greedy 1:1 station matching retained all 15 familiar stations and 15 of 33 unseen stations, forming 15 matched pairs. Matching did not improve the worst-case covariate balance: the maximum absolute standardized mean difference increased from 0.479 before matching to 0.555 after matching because of residual imbalance in noise RMS. We therefore interpret the matched estimates as a limited-overlap secondary sensitivity analysis rather than as definitive deconfounded effects, and report them separately from the regression-adjusted sensitivity estimates. Across 32 method--metric outcomes, 30 retained the same direction across unadjusted, regression-adjusted, and matched analyses; excluding the Noisy clean-SNR sanity-control row, direction was preserved in 30 of 31 non-sanity-control rows. The two direction-sensitive rows were DeepDenoiser background suppression and the Identity/noisy-input baseline clean-SNR sanity contrast. Zero-exclusion status was consistent in 29 of 32 rows; the three rows that changed status across sensitivity layers were Wiener-blind amplitude ratio, Wiener-blind background suppression, and $\lpol=0.5$ waveform correlation. These results support the same qualitative interpretation as Table~\ref{tab:e3_leakage}: the A/B contrast is informative as a station-familiarity/domain-shift diagnostic, but residual imbalance and post-hoc adjustment prevent a causal station-memorization estimate. The full no-taper balance, regression, matching, direction, and tapered-versus-no-taper provenance diagnostics are reported in the supplementary material.
+
+\subsection{E4: checkpoint selection remains unstable and shows partial composition sensitivity}
+\label{sec:e4}
+E4 audits development-set checkpoint selection rather than replacing it with a new selection rule. The multi-seed audit has two primary instability checks: within a fixed training seed, development-event bootstrap can change the selected epoch; across training seeds, the selected epoch shifts even more. Event-level resampling was used to assess sensitivity to the 25 observed development events. Because the development set contains only five stations, station-level resampling would provide extremely low-resolution uncertainty; station composition was therefore examined separately through leave-one-station-out and three-station subset audits. A post-hoc station-subset composition audit then asks whether the same five-station development set is sensitive to which development stations are retained. The composition audit probes sensitivity to station membership and subset size, but with only five development stations it cannot separately identify geographic-distribution effects; no claim of geographic sufficiency is made.
+Figure~\ref{fig:e4_stability} shows the within-seed and between-seed instability checks. The top panel reports within-seed bootstrap reproduction, and the bottom panel shows selected-epoch dispersion across training seeds. The figure uses stacked panels so seed-level differences remain readable in print. Table~\ref{tab:e4_stability} reports the $m=25$ reproduction rates; none reaches the 0.90 reproducibility criterion.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.96\linewidth]{figures/fig07a_e4_within_seed_stability.pdf}
+    \par\vspace{0.7em}
+    \includegraphics[width=0.96\linewidth]{figures/fig07b_e4_between_seed_epoch_scatter.pdf}
+    \caption{E4 multi-seed checkpoint-selection instability. The upper panel shows within-seed bootstrap reproduction, and the lower panel shows selected-epoch dispersion across seeds; the accompanying text reports the separate post-hoc station-subset composition audit.}
+    \label{fig:e4_stability}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption{E4 full-epoch reproduction under development-event bootstrap. The 0.90 full-epoch reproduction criterion was an operational benchmark used for interpretation, not a formal significance threshold or a field-wide standard.}
+\label{tab:e4_stability}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+Run & Full selected epoch & Bootstrap mode epoch & Full-epoch reproduction \\
+\midrule
+$\lpol=0$, seed 42 & 15 & 15 & 0.832 \\
+$\lpol=0$, seed 43 & 8 & 8 & 0.607 \\
+$\lpol=0$, seed 44 & 13 & 7 & 0.375 \\
+$\lpol=0.5$, seed 42 & 20 & 20 & 0.577 \\
+$\lpol=0.5$, seed 43 & 22 & 22 & 0.512 \\
+$\lpol=0.5$, seed 44 & 14 & 14 & 0.766 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+Increasing the development sample to the available $m=25$ does not solve selection uncertainty. In the within-seed bootstrap audit, no seed reaches the 0.90 full-epoch reproducibility criterion. This 0.90 criterion is an operational benchmark used for interpretation, not a formal significance threshold or a field-wide standard. Changing the training seed moved the selected epoch from 8 to 15 for $\lpol=0$ and from 14 to 22 for $\lpol=0.5$. The $\lpol=0$ seed-44 run provides the sharpest within-seed warning: the full-development selection was epoch 13, whereas the bootstrap mode was epoch 7. Thus, although the development rule tracked the external real-event final-set ranking more closely than validation loss in E1, it did not constitute a stable oracle.
+
+The separate development-composition audit gives LOSO agreement 73.3\%, three-station agreement 61.7\%, and overall agreement 65.6\%, with 31 of 90 run-subset combinations changing selected epoch and selected epochs ranging from e3 to e28; omitting station R3E8B is the most sensitive leave-one-station-out perturbation. This post-hoc diagnostic was not used to reselect checkpoints. It shows partial sensitivity within the observed five-station development set; it does not show that five development stations are sufficient, that they are geographically representative, or that adding more development stations would leave the selection unchanged. The selected checkpoint should therefore be treated as part of the frozen experimental design. The development-bootstrap selection records, multi-seed selected-epoch summaries, and station-subset composition-audit outputs are included in the accompanying public release and supplementary material.
+
+\subsection{E5: optimization dynamics and recovery outcomes diverge}
+\label{sec:e5}
+E5 repeats training for paired seeds 42, 43, and 44 under $\lpol=0$ and $\lpol=0.5$. The training-dynamics differences were consistent in sign across the three paired seeds. All three paired seeds show lower epoch-10 LayerNorm scale drift under $\lpol=0.5$ than under $\lpol=0$, with individual paired deltas of -0.2978, -0.2540, and -0.4322. These $\gamma$-drift deltas are consistent in sign across seeds, unlike the terminal recovery differences below. Under $\lpol=0$, all three seeds enter an early runaway gradient-spike regime by epochs 11--12. Under $\lpol=0.5$, none triggers the divergence rule fixed before interpreting the multi-seed comparison through epoch 30. This does not mean instability disappears: seed 44 under $\lpol=0.5$ develops a mild late spike regime after epoch 26, well below the severity of the early $\lpol=0$ runaways.
+
+This multi-seed comparison is deliberately descriptive. With only three paired seeds, sign consistency across paired seeds is not formal statistical evidence; it tests whether the single-seed narrative survives limited replication. Training dynamics are independent of pseudo-clean target definition. The selected-checkpoint terminal contrasts below were reconstructed under the frozen no-taper target definition using the historical selected checkpoint identities. They remain target-dependent shared-target diagnostics, not primary report-card rankings and not historical sample-identical reruns. Five or more seeds are suggested only as a pragmatic starting point for descriptive stability checks, not as a universal minimum or a substitute for a precision- or power-based design.
+Figure~\ref{fig:e5_dynamics} summarizes the training-dynamics contrast. It shows that CovNorm lowers early LayerNorm scale drift and avoids the early gradient-spike regime seen under $\lpol=0$, while seed 44 under $\lpol=0.5$ still develops a mild late spike regime after epoch 26. Table~\ref{tab:e5_performance} reports reconstructed no-taper selected-checkpoint terminal performance. Values are $\lpol=0.5-\lpol=0$ for the same seed; no cross-seed mean is used because $n=3$ and seed 42 dominates the amplitude-ratio average.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig08_e5_multiseed_dynamics.pdf}
+    \caption{E5 multi-seed optimization dynamics. The gamma traces summarize LayerNorm-scale drift, and spike-count traces mark the early runaway regime and the milder late seed-44 spike regime.}
+    \label{fig:e5_dynamics}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption{E5 reconstructed no-taper paired selected-checkpoint terminal contrasts. Each row is the within-seed $\lpol=0.5-\lpol=0$ difference using the historical selected checkpoint identities and the frozen no-taper controlled-mixture manifest. These values are target-dependent shared-target diagnostics, not primary report-card rankings and not historical sample-identical reruns of the submitted tapered E5 experiment.}
+\label{tab:e5_performance}
+\small
+\resizebox{\linewidth}{!}{%
+\input{generated_tables/table12_e5_reconstructed_no_taper.tex}
+}
+\end{table}
+
+Table~\ref{tab:e5_performance} shows the split between optimization and recovery. Clean-SNR shifts negative in all three paired seeds: -0.462, -0.063, and -0.088 dB. Amplitude-ratio differences are mixed (+0.439, -0.044, and +0.048), and correlation differences are also mixed (+0.025, -0.017, and +0.032). Seed 42 is the high-leverage trap: by itself it would suggest a dramatic trade-off (lower clean-SNR but much higher amplitude), but seeds 43 and 44 do not reproduce that amplitude effect. The median amplitude-ratio difference is only +0.048, and the paired signs are mixed. The correct conclusion is that the optimization-side differences were consistent across the three paired seeds, whereas denoising and recovery effects were seed-dependent and did not support a uniform performance improvement in this descriptive $n=3$ comparison. The paired-seed dynamics and reconstructed no-taper selected-checkpoint summaries are included in the manuscript-matched versioned archive.
+
+\FloatBarrier
+
+\subsection{E6: station-level bootstrap is required}
+\label{sec:e6}
+E6 compares window-level bootstrap against station-level bootstrap for paired CovNorm-versus-$\lpol=0$ differences in the 816-case controlled reference-based mixture evaluation. Window-level resampling treats all 816 cases as independent, but cases are clustered within 34 stations. Table~\ref{tab:e6_bootstrap} reports confidence intervals (CIs), CI widths, the station/window width ratio, the intraclass correlation coefficient (ICC), and the design effect (DEFF). ICC measures within-station similarity; DEFF summarizes the resulting inflation in uncertainty relative to independent windows.
+
+\begin{table}[!htbp]
+\centering
+\caption{E6 no-taper window-level versus station-level paired-bootstrap calibration for CovNorm versus $\lpol=0$. Width ratio is station CI width divided by window CI width; ICC is the one-way intraclass correlation of paired case differences; DEFF is the corresponding design effect.}
+\label{tab:e6_bootstrap}
+\small
+\resizebox{\linewidth}{!}{\input{generated_tables/table11_station_bootstrap_notaper.tex}}
+\end{table}
+
+The station-level intervals are 1.8--2.7 times wider than window-level intervals, with design effects above 3 for every metric shown. This is the inferential basis for the E5 performance conclusion: the apparent CovNorm amplitude differences are not resolved once station clustering is respected. For $\lpol=0.1-\lpol=0$, for example, the mean amplitude-ratio difference is +0.016, but the station-level CI [-0.019,+0.050] crosses zero even though the window-level interval excludes zero. All inferential claims in this paper use the station-level bootstrap convention.
+
+\FloatBarrier
+\clearpage
+
+\subsection{E7: pseudo-clean templates are sensitive to tapering inside the metric window}
+\label{sec:e7}
+No-taper rescoring is primary for the controlled reference-based report card. Relative to the submitted tapered target, removing the P-onset taper does not overturn the CovNorm-versus-$\lpol=0$ negative case-study conclusion, but it does change selected cross-method inferences and therefore becomes part of the protocol self-audit rather than a cosmetic sensitivity check. In the high-SNR probe subset, pseudo-clean template construction can distort method ranking. Residual noise is not the driver, and simple 1--20 Hz band-limiting is not the driver. The collapse occurs when the pseudo-clean construction includes a 0.5 s P-onset ramp inside the clean-SNR metric window.
+Table~\ref{tab:e7_tau} localizes the ranking collapse to the tapering step. Removing only the P-onset taper restores agreement with the band-limited reference; adding the taper collapses clean-SNR ranking.
+
+\begin{table}[!htbp]
+\centering
+\caption{E7 pseudo-clean template mechanism closure.}
+\label{tab:e7_tau}
+\small
+\begin{tabularx}{\linewidth}{p{0.28\linewidth}YY}
+\toprule
+Comparison & Overall clean-SNR Kendall $\tau$ & Synthetic-route clean-SNR Kendall $\tau$ \\
+\midrule
+true vs band & 0.929 & 1.000 \\
+true vs pipe0\_notaper & 0.929 & 1.000 \\
+true vs pipe0 & 0.357 & 0.286 \\
+true vs pseudo & 0.357 & -- \\
+band vs pipe0\_notaper & 1.000 & 1.000 \\
+pipe0\_notaper vs pipe0 & 0.429 & 0.286 \\
+\bottomrule
+\end{tabularx}
+\par\vspace{0.35em}\footnotesize Note. The synthetic-route cell for true versus pseudo is omitted because the mechanism-closure table did not define a separate residual-noise pseudo target beyond the pipe0 construction; pipe0 is the relevant tapered pseudo-clean operator for that route.
+\end{table}
+
+After a bootstrap confidence-interval gate, resolved CovNorm-versus-$\lpol=0$ sign flips are zero, so the CovNorm case-study conclusion is not overturned. The cross-method clean-SNR statement is more sensitive in the E7 high-SNR probe subset, where Wiener-blind changes ordering relative to self-supervised checkpoints under tapered versus no-taper targets (Table~\ref{tab:e7_tau}). We qualify clean-SNR rankings as target-definition dependent and recommend that template shaping be kept outside metric windows.
+
+\FloatBarrier
+
+\section{Discussion}
+\subsection{Evaluation resolution as the main contribution}
+The CovNorm case study illustrates why evaluation resolution matters. CovNorm was not obviously doomed. A conventional evaluation could have assembled a coherent but misleading success story from individually plausible pieces of evidence. Validation-loss curves provide a training-side selection signal, development-set amplitude can improve under stronger regularization, the seed-42 comparison suggests a visually attractive trade-off between lower clean-SNR and much higher amplitude (+0.439 amplitude ratio for $\lpol=0.5-\lpol=0$), and the dynamics audit shows a consistent optimization-side pattern across the three paired seeds: stronger CovNorm delays the early gradient-spike regime. A report centered on one seed, one development rule, apparent denoising, or training stability could have made the method look promising.
+
+The full protocol blocks that narrative. E1 shows that validation loss is not a reliable proxy for external real-event report-card performance. E2 shows that apparent SNR and suppression-heavy diagnostics can make damaged waveforms look successful unless amplitude and correlation are reported alongside them. E3 shows that familiar-versus-unseen station-domain contrasts are method- and metric-dependent rather than a uniform station-familiarity bonus, with no consistent reconstructed no-taper advantage for the evaluated self-supervised checkpoints. E4 shows that development selection is unstable under within-seed resampling and between-seed comparison, and that a post-hoc subset audit reveals additional composition sensitivity. E5 shows that the seed-42 amplitude trade-off is not reproduced by seeds 43 and 44; the optimization-side differences are consistent in sign across the three paired seeds, but terminal recovery effects are seed-dependent and do not support a uniform performance improvement in that descriptive comparison. The identity and N2V baselines show that amplitude preservation alone is not evidence of recovery: context-only self-supervision can either pass the input through or suppress background while losing waveform fidelity. The 3C covariance audit gives CovNorm its fairest target-property test and still finds no improvement beyond identity, even though $\lpol=0.5$ improves covariance shape relative to the unregularized checkpoint. The protocol also self-audits the evaluation pipeline: E7 found that a P-onset taper inside the clean-SNR metric window can create target-definition artifacts, a failure mode that a simple leaderboard would hide.
+
+For the reconstructed E3 and E5 paired contrasts specifically, the qualitative signs and zero-exclusion interpretations were preserved relative to the submitted tapered analyses. Because the reconstruction was not sample-identical, this agreement supports, but does not prove, the expectation that target-shaping effects were largely common-mode within these shared-target contrasts. In the separate primary controlled-mixture report-card audit, two N2V-sync inferences changed under the no-taper reference: clean-SNR gain and background-suppression delta became resolved positive, while waveform correlation retained a small resolved negative trade-off.
+
+The protocol does more than reject methods, however. It resolves a positive non-learning baseline: Wiener-blind has clean-SNR gain +1.755 dB [1.517, 1.988], identity-level correlation difference -0.0024 [-0.0111, 0.0065], and background suppression +2.224 dB [1.816, 2.643]. We also ran a controlled recovery probe that creates synthetic outputs with a known fraction of the injected residual noise removed, $y_r=c+(1-r)(x-c)$, and scores them through the same controlled reference-based mixture evaluation. Table~\ref{tab:recovery_probe} shows that clean-SNR gain, background suppression, and correlation increase monotonically with controlled recovery. Clean-SNR gain, background suppression, correlation, and amplitude-ratio entries are changes relative to identity; the negative amplitude-ratio changes mean that the controlled probe moves the noisy amplitude inflation back toward the pseudo-clean amplitude. Station-level intervals for clean-SNR gain and background suppression are effectively point-like because the probe applies a fixed residual scaling. This calibrates the report card's ability to register recovery when recovery is present. It does not replace the still-missing harder learned self-supervised recovery reference, but it does rule out the claim that the protocol is structurally unable to produce a positive result.
+
+\begin{table}[!htbp]
+\centering
+\caption{No-taper controlled recovery probe on the controlled reference-based mixture evaluation. Entries are changes relative to identity; negative amplitude-ratio changes indicate reduced noisy-amplitude inflation rather than an error in the recovery direction. Clean-SNR and background-suppression intervals collapse to points because these gains are analytically determined by the recovery fraction, $-20\log_{10}(1-f)$.}
+\label{tab:recovery_probe}
+\small
+\resizebox{\linewidth}{!}{\input{generated_tables/table13_recovery_probe_notaper.tex}}
+\end{table}
+
+\subsection{Why context-only blind-spot self-supervision is fragile here}
+The identity-baseline comparison suggests a theoretical interpretation rather than only an empirical negative result. Noise2Noise, Noise2Void, and Noise2Self-style training is justified when the held-out target dimension contains noise that is conditionally independent of the information used for prediction, so that the self-supervised target is an unbiased route to the underlying signal or to a useful denoising risk \citep{batson2019,krull2019,lehtinen2018}. The held-out noise diagnostic in Section~\ref{sec:noise_corr} shows that the controlled reference-based noise pool violates this premise: temporal autocorrelation exceeds the white-noise opportunity band after the same band-pass preprocessing used for evaluation. The context around a masked time sample contains informative noise, not only signal. Cross-component coherence exceeds the finite-Welch independence threshold as well; this supports synchronized component masking and indicates shared noise structure across Z/N/E, although the time-autocorrelation result is the direct challenge to a temporal blind spot.
+
+Under this violation, a context-only objective has two natural degeneracies. One is the nearly identity-like solution observed for the matched N2V variants: predicting from neighboring samples can reproduce the correlated mixture while barely suppressing background. The other is the CovNorm Transformer behavior: the model does not simply pass the input through, but suppresses background while reshaping the waveform enough that normalized correlation falls far below the identity baseline. These are different implementations of the same limitation. The training objective can be reduced without learning the operation that the report card requires: preserve earthquake waveform shape while removing background.
+
+The Wiener-blind baseline is useful because it separates waveform preservation from suppression. It uses the noisy observation to estimate a component-wise PSD median from low-energy frames, so it is not a learned method and not a supervised oracle. The submitted default is retained as the primary configuration: frame 4.0 s, hop 2.0 s, low-energy fraction 0.30, and no final-set optimization; a nine-configuration sensitivity envelope is reported only as supplementary context. Its correlation is not an improvement over identity; rather, it shows that suppression need not require the large correlation loss seen in the CovNorm Transformer. Thus the negative result should be read as a boundary of context-only blind-spot self-supervision for correlated seismic noise, not merely as a failed hyperparameter choice.
+
+This is a consistency argument, not a complete causal proof. The observed noise correlations are modest but above the relevant opportunity baselines; they make the failure mode plausible, but they do not by themselves manipulate the cause. We did not train the same blind-spot models on a controlled independent-noise synthetic benchmark in which the conditional-independence assumption is restored. Such a white-noise or independently sampled-noise control would be a useful follow-up for separating the effect of noise correlation from architecture-specific behavior.
+
+\subsection{Practical recommendations}
+Table~\ref{tab:recommendations} summarizes the resulting checklist for future self-supervised seismic denoising studies.
+
+\begin{table}[!htbp]
+\centering
+\caption{Practical checklist implied by the protocol.}
+\label{tab:recommendations}
+\small
+\begin{tabularx}{\linewidth}{>{\centering\arraybackslash}p{0.06\linewidth}p{0.34\linewidth}Y}
+\toprule
+No. & Recommendation & Failure mode addressed \\
+\midrule
+1 & Freeze station-disjoint data roles. & Same-station familiarity and post-hoc split changes can inflate apparent transfer performance \\
+2 & Report multiple recovery metrics. & Single metrics can reward noise-window suppression, amplitude loss, or identity-like behavior \\
+3 & Audit checkpoint-selection stability. & Small development sets can select different epochs under modest sampling changes \\
+4 & Repeat method comparisons across seeds. & Single-seed behavior can be mistaken for a method-level effect \\
+5 & Bootstrap at the station level. & Window-level resampling treats correlated windows from the same station as independent \\
+6 & Keep pseudo-clean shaping outside metric windows. & Target construction can create metric artifacts that look like method differences \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{CovNorm-specific interpretation}
+CovNorm is numerically better behaved than the earlier abandoned pairwise Pearson formulation, and its trace-normalized covariance target is interpretable as a three-component polarization descriptor. The physical interpretation is limited, however, because the target covariance is computed from the noisy masked observation. At low SNR, a high-trace target can still be dominated by noise polarization. The target-trace gate in these runs filtered no logged batches, so it prevented numerical degeneracy but did not remove the conceptual problem that the retained covariance target may align the prediction with correlated noise structure.
+
+This tension helps explain the result pattern. CovNorm changes training dynamics, lowering early LayerNorm scale drift and delaying severe gradient-spike behavior, but the target it stabilizes around is not guaranteed to be a clean signal covariance. The case study shows that a plausible physically inspired loss can affect optimization without improving denoising, reinforcing the need for external recovery audits.
+
+Future mitigation is speculative and was not evaluated in this study. Four directions follow from the failure mode. Signal-confidence weighting could downweight masked covariance targets whose local windows are likely noise dominated. Noise-covariance whitening or subtraction could reduce the chance that the CovNorm target aligns the prediction with site-specific correlated noise. Time-frequency localized covariance could restrict the descriptor to windows and bands where signal polarization is more plausible instead of averaging over the whole masked context. Teacher--student or two-stage refinement could use a preliminary signal-preserving estimate to define a less noise-contaminated covariance target. These directions are prospective and were not evaluated in the present study; each would need the same station-disjoint, multi-metric audit before being interpreted as a recovery improvement.
+
+The three-component target-property audit narrows this interpretation. Stronger CovNorm improves covariance-shape distance relative to the unregularized checkpoint, so the regularizer is not inert with respect to its intended descriptor. However, the same outputs remain worse than identity on clean-template covariance shape and principal-axis angle. The mechanism is better described as a partial movement within the CovNorm target space, not as externally validated polarization recovery.
+
+\section{Limitations}
+The multi-seed scope remains small; Section~\ref{sec:e5} treats the paired-seed evidence as descriptive. This limits claims about seed-level variance and formal sign-flip probabilities, but it does not weaken the protocol claim that single-seed narratives should be audited rather than accepted without replication.
+
+The final set is station-disjoint but regionally imbalanced, with only two stations in Asia/Oceania. Regional subgroup summaries are therefore descriptive and should not be read as evidence of broad global or cross-instrument generalization.
+
+The data deliberately use one controlled Raspberry Shake sensor family across geographically diverse noise environments. This limits direct empirical generalization to other instruments, network architectures, and acquisition conditions, but it also reduces instrument-response confounding and leaves intact the evaluation claim that station-disjoint testing should be reported explicitly.
+
+The pseudo-clean templates are useful for controlled reference-based testing but are not laboratory ground truth, and E7 shows that template shaping can affect clean-SNR rankings. Removing the onset taper addresses the specific ranking artifact identified in E7, but it does not validate every element of the pseudo-clean construction. The 1--20 Hz filtering, hard pre-P zeroing, post-P truncation, arrival-time uncertainty, and residual noise in the event template remain possible sources of target-definition dependence. In particular, hard pre-P zeroing can itself introduce an onset discontinuity and was not isolated in the present sensitivity audit. Independent ground-truth synthetic data or co-located higher-quality instrument references would be required to evaluate absolute recovery validity. These limitations restrict interpretation of target-dependent metrics as absolute physical truth, but they strengthen rather than weaken the need for pseudo-clean target audits and no-taper rescoring.
+
+The reconstructed no-taper E3/E5 diagnostics improve traceability for the revised manuscript but do not establish historical sample identity with the submitted tapered E3/E5 artifacts. The submitted tapered artifacts are retained for version provenance, whereas the revised diagnostic tables use newly frozen no-taper manifests. Differences between historical tapered values and reconstructed no-taper values therefore cannot be attributed to taper removal alone. These diagnostics are used to expose station-domain, background-suppression, seed, and regularization trade-offs, not to define a unified primary model ranking.
+
+The matched Noise2Void comparison uses one U-Net implementation and two masking variants. This limits the baseline comparison to matched context-only blind-spot controls, but it does not affect the broader report-card requirement that identity-like behavior and metric-specific failure modes be checked.
+
+The main waveform-correlation report card remains Z-component based to match the P-window amplitude and timing metrics. The added 3C covariance and horizontal-component audit checks that the CovNorm conclusion is not solely a Z-only artifact, but it is still not a full polarization benchmark. This limits claims about complete three-component particle-motion fidelity, but it does not undermine the central waveform-recovery result that background suppression must be separated from signal fidelity. These limitations restrict the scope of the empirical case study, but they do not weaken the central claim that denoising evaluation should explicitly test the listed failure modes.
+
+\section{Conclusion}
+We presented a reproducible evaluation protocol for self-supervised three-component blind-spot seismic denoising and used CovNorm as a worked case study yielding a negative result. The main empirical lesson is that development-side plausibility, including lower validation loss, changed covariance structure, and apparent background suppression, is not enough to establish waveform recovery. Under the no-taper controlled reference-based mixture audit, N2V-sync shows small resolved gains in clean-SNR and background suppression, but it also shows a small resolved waveform-correlation trade-off and is not evidence of general waveform recovery. In the Raspberry Shake AM CovNorm case study, $\lpol=0$ remains unresolved for clean-SNR, while $\lpol=0.1$ and $\lpol=0.5$ are resolved negative and do not produce station-resolved recovery gains over $\lpol=0$. The protocol exposed multiple failure modes: validation-loss proxy error (E1), adversarial metric gaming (E2), familiar-versus-unseen station domain shift under the station-leakage audit label (E3), development-set instability and composition sensitivity (E4), seed-specific narratives (E5), station/window bootstrap overconfidence (E6), and pseudo-clean target sensitivity (E7). The released public artifacts support rerunning these checks and adding new baselines without retraining the CovNorm model. For self-supervised seismic denoising, the practical message is to treat apparent denoising, optimization stability, and waveform recovery as distinct claims that require distinct controls.
+
+\section*{Data and Code Availability}
+Raw waveform data and station metadata used in this study come from the Raspberry Shake AM network distributed through FDSN services \citep{raspberryshake2016}. The manuscript-matched revision artifacts are prepared for GitHub release v1.0.5 at \url{https://github.com/GANjj01/seismic-denoising-eval-protocol/releases/tag/v1.0.5}. The repository-wide Zenodo concept DOI is \url{https://doi.org/10.5281/zenodo.20681569}; the version-specific v1.0.5 DOI will be assigned by Zenodo upon archival. Version v1.0.4 is retained as the preceding public release and has not been overwritten. Version v1.0.5 includes the reconstructed no-taper E3/E5 manifests, per-case metrics, manuscript-matched sources for Tables~\ref{tab:e3_leakage} and~\ref{tab:e5_performance}, hashes, provenance records, and reproducibility checks used in the revised manuscript. Raw MiniSEED files and the local sample-level tensor archive are not redistributed. Summary-table reproduction and metric/bootstrap auditing can be performed directly from the released materials, whereas waveform-level reconstruction requires reacquiring the source waveforms from the relevant FDSN services. The package includes a small smoke test that regenerates the controlled reference-based report card from the released per-case table without accessing raw waveforms. Some released filenames retain the legacy \texttt{oracle\_free} prefix for provenance. These files correspond to the controlled reference-based mixture evaluation and do use evaluator-held references for scoring; the legacy name must not be interpreted as reference-free evaluation.
+
+The public archive supports three practical levels of reproduction: summary-level report-card reproduction from per-case tables without raw waveforms; metric-level and station-bootstrap audits from the released derived tables; and extension to new baselines after reacquiring waveforms from FDSN using the released station/window indices. The release contains station lists, time windows, request metadata, and download scripts, but the raw MiniSEED files are not redistributed. Because FDSN holdings and station metadata can change, exact future redownload success is not guaranteed; missing requests are logged and skipped according to the released QC rules. Full neural retraining of the CovNorm case study is not required for using the protocol and would additionally require waveform reacquisition and the documented training configuration.
+
+Waveform access, MiniSEED handling, filtering, and basic seismological processing used ObsPy \citep{krischer2015}. Neural-network training and inference used PyTorch \citep{paszke2019}. The pretrained DeepDenoiser reference was accessed through SeisBench, which also informed the software-standardization context discussed in the introduction \citep{woollam2022,zhu2019}.
+
+Generative AI was used as part of the research software workflow, not as an autonomous source of scientific claims. OpenAI Codex (GPT-5, accessed in June 2026) assisted with drafting software components, refactoring, and debugging training, evaluation, analysis, and plotting code. The authors supervised all generated code, inspected and revised outputs before use, reran the resulting analyses, and remain fully responsible for the correctness of the software and results. The versioned Zenodo and source-code releases include the auditable code and derived evaluation artifacts listed above.
+
+\section*{Acknowledgements}
+We acknowledge Raspberry Shake and the contributing station hosts for providing waveform data through the AM network.
+
+\FloatBarrier
+\clearpage
+\appendix
+\section*{Appendix: Metric Definitions}
+\label{app:metrics}
+All waveform metrics use 100 Hz three-component windows. Real-event windows are aligned so the P arrival is at index $p=1000$ (10 s). Controlled reference-based mixtures crop a 35 s event-centered window from the hidden continuous trace so that the injected P arrival is also at $p=1000$. The evaluator-held pseudo-clean references are used only by the evaluator to compute clean-SNR, amplitude, correlation, covariance, and related metrics; model training and inference never access them. The no-taper target definition is primary, and the submitted onset-tapered definition is retained as a sensitivity analysis. Let $\operatorname{rms}(x)=\sqrt{\operatorname{mean}(x^2)}$.
+
+\paragraph{Real-event apparent SNR gain.}
+For a waveform $x$, apparent SNR is computed on the Z component:
+\begin{equation}
+\operatorname{SNR}_{\operatorname{app}}(x)
+=20\log_{10}
+\frac{\operatorname{rms}(x_Z[p:p+10s])}
+{\operatorname{rms}(x_Z[0:p])+\epsilon}.
+\end{equation}
+The reported real-event apparent SNR gain is
+\begin{equation}
+\Delta\operatorname{SNR}_{\operatorname{app}}
+=\operatorname{SNR}_{\operatorname{app}}(y)
+-\operatorname{SNR}_{\operatorname{app}}(x),
+\end{equation}
+where $x$ is the raw event window and $y$ is the method output. This metric is apparent because the pre-P segment is treated as the noise reference and no clean target is available.
+
+\paragraph{Continuous clean-SNR gain.}
+For controlled reference-based mixtures, the evaluator-held pseudo-clean injected target $c$ is known to the evaluator but not to the methods. First define absolute output-to-clean SNR over the first 10 s after P using all three components:
+\begin{equation}
+\operatorname{SNR}_{\operatorname{clean}}(y,c)
+=20\log_{10}
+\frac{\operatorname{rms}(c[p:p+10s])}
+{\operatorname{rms}(y[p:p+10s]-c[p:p+10s])+\epsilon}.
+\end{equation}
+The reported table value is the gain relative to the noisy input $x$:
+\begin{equation}
+\Delta\operatorname{SNR}_{\operatorname{clean}}(y,x,c)
+=\operatorname{SNR}_{\operatorname{clean}}(y,c)
+-\operatorname{SNR}_{\operatorname{clean}}(x,c).
+\end{equation}
+The identity baseline therefore has zero clean-SNR gain for every case. The three target SNR levels are -5, 0, and +5 dB, so the mean absolute identity SNR is also near zero, but the report card uses the paired gain definition.
+
+\paragraph{Amplitude ratio.}
+Real-event amplitude ratio uses the Z-component 95th percentile absolute amplitude in the first 2 s after P:
+\begin{equation}
+A_{\operatorname{real}}(y,x)
+=
+\frac{Q_{0.95}(|y_Z[p:p+2s]|)}
+{Q_{0.95}(|x_Z[p:p+2s]|)+\epsilon}.
+\end{equation}
+Continuous-test amplitude ratio replaces the raw reference $x$ with the pseudo-clean target $c$:
+\begin{equation}
+A_{\operatorname{clean}}(y,c)
+=
+\frac{Q_{0.95}(|y_Z[p:p+2s]|)}
+{Q_{0.95}(|c_Z[p:p+2s]|)+\epsilon}.
+\end{equation}
+
+\paragraph{Waveform correlation.}
+Correlation is Z-component normalized cross-correlation over the first 10 s after P, after removing the mean from both traces. Let $a=y_Z[p:p+10s]-\bar{y}$ and $b=c_Z[p:p+10s]-\bar{c}$. The reported value is the best lag within +/- 1 s:
+\begin{equation}
+\rho(y,c)=
+\max_{|\ell|\le 1s}
+\frac{\sum_t a_t b_{t-\ell}}
+{\|a\|_2\|b\|_2+\epsilon}.
+\end{equation}
+Because the denominator normalizes by both waveform energies, global amplitude scaling does not explain correlation differences.
+
+\paragraph{Three-component covariance and polarization rescoring.}
+The covariance-shape audit uses the same P+10 s metric window as clean-SNR, but keeps all three components. For a demeaned three-component window $W\in\mathbb{R}^{L\times 3}$ with columns ordered Z, N, and E,
+\begin{equation}
+\bm{C}(W)=\frac{1}{L}W^\top W,\qquad
+\hat{\bm{C}}(W)=\frac{\bm{C}(W)}{\max(\operatorname{tr}\bm{C}(W),\epsilon)} .
+\end{equation}
+The clean-template covariance distance is
+\begin{equation}
+D_{\operatorname{cov}}(y,c)=
+\left\|\hat{\bm{C}}(y[p:p+10s])-\hat{\bm{C}}(c[p:p+10s])\right\|_F .
+\end{equation}
+The reported gain is paired against the identity baseline:
+\begin{equation}
+G_{\operatorname{cov}}(y,x,c)=D_{\operatorname{cov}}(x,c)-D_{\operatorname{cov}}(y,c),
+\end{equation}
+so positive values mean the method is closer than the noisy input to the pseudo-clean covariance shape. The noisy-target audit in Figure~\ref{fig:covnorm_dcov_clean_noisy} replaces $c$ with $x$ in the distance.
+
+For polarization attributes, let the eigenvalues of $\bm{C}$ be $\lambda_1\geq\lambda_2\geq\lambda_3$ and let $\bm{u}_1$ be the principal eigenvector. Following standard covariance-based polarization analysis \citep{jurkevics1988,vidale1986}, rectilinearity and planarity are
+\begin{equation}
+R=1-\frac{\lambda_2+\lambda_3}{2\lambda_1},\qquad
+P=1-\frac{2\lambda_3}{\lambda_1+\lambda_2}.
+\end{equation}
+The principal-axis angle error is
+\begin{equation}
+\theta(y,c)=
+\cos^{-1}\left(\left|\bm{u}_{1,y}^{\top}\bm{u}_{1,c}\right|\right),
+\end{equation}
+reported in degrees; the absolute inner product removes the eigenvector sign ambiguity. Table~\ref{tab:polarization_rescore} reports angle-error reduction relative to identity, $\theta(x,c)-\theta(y,c)$, so positive values mean a smaller principal-axis error. Component-wise N and E correlations use the same normalized cross-correlation formula as the Z metric, applied separately to each horizontal component.
+
+\paragraph{Background suppression.}
+For controlled reference-based mixtures, background suppression compares the mixture $x$ and output $y$ outside an event-exclusion region. The exclusion region runs from 2 s before the hidden onset to 2 s after the 20 s injected event window. With background mask $B$,
+\begin{equation}
+B_{\operatorname{sup}}(y,x)=
+20\log_{10}
+\frac{\operatorname{rms}(x[B])}
+{\operatorname{rms}(y[B])+\epsilon}.
+\end{equation}
+
+\paragraph{No-taper rescoring.}
+Pseudo-clean templates are produced by 1--20 Hz band-pass filtering the real event window, zeroing samples before P, and zeroing samples after P+20 s. The original construction also multiplied the first 0.5 s after P by a ramp. E7 showed that this ramp falls inside the clean-SNR metric window and can alter rankings. The no-taper rescoring audit removes only that 0.5 s P-onset ramp while keeping the same event templates, injections, model outputs, and metric formulas.
+
+\FloatBarrier
+\clearpage
+
+% Bibliography is inlined to avoid Editorial Manager BibTeX/.bbl file handling failures.
+% Frozen verified release bibliography. Do not modify submitted_original.
+\begin{thebibliography}{23}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Article
+\bibitem[{Anthony et~al.(2019)Anthony, Ringler, Wilson and Wolin}]{anthony2019}
+\bibinfo{author}{Anthony, R.E.}, \bibinfo{author}{Ringler, A.T.},
+  \bibinfo{author}{Wilson, D.C.}, \bibinfo{author}{Wolin, E.},
+  \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Do low-cost seismographs perform well enough for your
+  network? {An} overview of laboratory tests and field observations of the
+  {OSOP Raspberry Shake 4D}}.
+\newblock \bibinfo{journal}{Seismological Research Letters}
+  \bibinfo{volume}{90}, \bibinfo{pages}{219--228}.
+\newblock \DOIprefix\doi{10.1785/0220180251}.
+
+%Type = Article
+\bibitem[{Barros et~al.(2026)Barros, Sardinha, Arboleda, Valente, de Melo, Aveleda, Bulcao, Netto and Evsukoff}]{barros2026}
+\bibinfo{author}{Barros, P.M.}, \bibinfo{author}{Sardinha, R.d.L.},
+  \bibinfo{author}{Arboleda, G.A.M.}, \bibinfo{author}{Valente, L.d.S.S.},
+  \bibinfo{author}{de Melo, I.R.V.}, \bibinfo{author}{Aveleda, A.},
+  \bibinfo{author}{Bulcao, A.}, \bibinfo{author}{Netto, S.L.},
+  \bibinfo{author}{Evsukoff, A.G.}, \bibinfo{year}{2026}.
+\newblock \bibinfo{title}{An open benchmark dataset of synthetic seismic data
+  and real swell noise for evaluating deep learning denoising models}.
+\newblock \bibinfo{journal}{Artificial Intelligence in Geosciences}
+  \bibinfo{volume}{7}, \bibinfo{pages}{100219}.
+\newblock \DOIprefix\doi{10.1016/j.aiig.2026.100219}.
+
+%Type = Inproceedings
+\bibitem[{Batson and Royer(2019)}]{batson2019}
+\bibinfo{author}{Batson, J.}, \bibinfo{author}{Royer, L.},
+  \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Noise2self: Blind denoising by self-supervision}, in:
+  \bibinfo{booktitle}{Proceedings of the 36th International Conference on
+  Machine Learning}, pp. \bibinfo{pages}{524--533}.
+
+%Type = Article
+\bibitem[{Birnie and Alkhalifah(2022)}]{birnie2022}
+\bibinfo{author}{Birnie, C.}, \bibinfo{author}{Alkhalifah, T.A.},
+  \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Transfer learning for self-supervised, blind-spot
+  seismic denoising}.
+\newblock \bibinfo{journal}{Frontiers in Earth Science}
+  \bibinfo{volume}{10}, \bibinfo{pages}{1053279}.
+\newblock \DOIprefix\doi{10.3389/feart.2022.1053279}.
+
+%Type = Article
+\bibitem[{Birnie et~al.(2021)Birnie, Ravasi, Liu and Alkhalifah}]{birnie2021}
+\bibinfo{author}{Birnie, C.}, \bibinfo{author}{Ravasi, M.},
+  \bibinfo{author}{Liu, M.}, \bibinfo{author}{Alkhalifah, T.A.},
+  \bibinfo{year}{2021}.
+\newblock \bibinfo{title}{The potential of self-supervised networks for random
+  noise suppression in seismic data}.
+\newblock \bibinfo{journal}{Artificial Intelligence in Geosciences}
+  \bibinfo{volume}{2}, \bibinfo{pages}{47--59}.
+\newblock \DOIprefix\doi{10.1016/j.aiig.2021.11.001}.
+
+%Type = Inproceedings
+\bibitem[{Bouthillier et~al.(2021)Bouthillier, Delaunay, Bronzi, Trofimov,
+  Nichyporuk, Szeto, Mohammadi~Sepahvand, Raff, Madan, Voleti,
+  Ebrahimi~Kahou, Michalski, Arbel, Pal, Varoquaux and Vincent}]{bouthillier2021}
+\bibinfo{author}{Bouthillier, X.}, \bibinfo{author}{Delaunay, P.},
+  \bibinfo{author}{Bronzi, M.}, \bibinfo{author}{Trofimov, A.},
+  \bibinfo{author}{Nichyporuk, B.}, \bibinfo{author}{Szeto, J.},
+  \bibinfo{author}{Mohammadi~Sepahvand, N.}, \bibinfo{author}{Raff, E.},
+  \bibinfo{author}{Madan, K.}, \bibinfo{author}{Voleti, V.},
+  \bibinfo{author}{Ebrahimi~Kahou, S.}, \bibinfo{author}{Michalski, V.},
+  \bibinfo{author}{Arbel, T.}, \bibinfo{author}{Pal, C.},
+  \bibinfo{author}{Varoquaux, G.}, \bibinfo{author}{Vincent, P.},
+  \bibinfo{year}{2021}.
+\newblock \bibinfo{title}{Accounting for variance in machine learning
+  benchmarks}, in: \bibinfo{booktitle}{Proceedings of Machine Learning and
+  Systems}, volume \bibinfo{volume}{3}, pp. \bibinfo{pages}{747--769}.
+
+%Type = Misc
+\bibitem[{Dodge et~al.(2020)Dodge, Ilharco, Schwartz, Farhadi, Hajishirzi and
+  Smith}]{dodge2020}
+\bibinfo{author}{Dodge, J.}, \bibinfo{author}{Ilharco, G.},
+  \bibinfo{author}{Schwartz, R.}, \bibinfo{author}{Farhadi, A.},
+  \bibinfo{author}{Hajishirzi, H.}, \bibinfo{author}{Smith, N.A.},
+  \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Fine-tuning pretrained language models: weight
+  initializations, data orders, and early stopping}.
+\newblock \bibinfo{journal}{arXiv preprint},
+  \href{http://arxiv.org/abs/2002.06305}{{\tt arXiv:2002.06305}}.
+
+%Type = Inproceedings
+\bibitem[{Henderson et~al.(2018)Henderson, Islam, Bachman, Pineau, Precup and
+  Meger}]{henderson2018}
+\bibinfo{author}{Henderson, P.}, \bibinfo{author}{Islam, R.},
+  \bibinfo{author}{Bachman, P.}, \bibinfo{author}{Pineau, J.},
+  \bibinfo{author}{Precup, D.}, \bibinfo{author}{Meger, D.},
+  \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{Deep reinforcement learning that matters}, in:
+  \bibinfo{booktitle}{Proceedings of the Thirty-Second AAAI Conference on
+  Artificial Intelligence}, pp. \bibinfo{pages}{3207--3214}.
+\newblock \DOIprefix\doi{10.1609/aaai.v32i1.11694}.
+
+%Type = Article
+\bibitem[{Jurkevics(1988)}]{jurkevics1988}
+\bibinfo{author}{Jurkevics, A.}, \bibinfo{year}{1988}.
+\newblock \bibinfo{title}{Polarization analysis of three-component array data}.
+\newblock \bibinfo{journal}{Bulletin of the Seismological Society of America}
+  \bibinfo{volume}{78}, \bibinfo{pages}{1725--1743}.
+\newblock \DOIprefix\doi{10.1785/BSSA0780051725}.
+
+%Type = Article
+\bibitem[{Krischer et~al.(2015)Krischer, Megies, Barsch, Beyreuther, Lecocq,
+  Caudron and Wassermann}]{krischer2015}
+\bibinfo{author}{Krischer, L.}, \bibinfo{author}{Megies, T.},
+  \bibinfo{author}{Barsch, R.}, \bibinfo{author}{Beyreuther, M.},
+  \bibinfo{author}{Lecocq, T.}, \bibinfo{author}{Caudron, C.},
+  \bibinfo{author}{Wassermann, J.}, \bibinfo{year}{2015}.
+\newblock \bibinfo{title}{{ObsPy}: a bridge for seismology into the scientific
+  {Python} ecosystem}.
+\newblock \bibinfo{journal}{Computational Science \& Discovery}
+  \bibinfo{volume}{8}, \bibinfo{pages}{014003}.
+\newblock \DOIprefix\doi{10.1088/1749-4699/8/1/014003}.
+
+%Type = Inproceedings
+\bibitem[{Krull et~al.(2019)Krull, Buchholz and Jug}]{krull2019}
+\bibinfo{author}{Krull, A.}, \bibinfo{author}{Buchholz, T.O.},
+  \bibinfo{author}{Jug, F.}, \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Noise2void: Learning denoising from single noisy
+  images}, in: \bibinfo{booktitle}{Proceedings of the IEEE/CVF Conference on
+  Computer Vision and Pattern Recognition}, pp. \bibinfo{pages}{2129--2137}.
+\newblock \DOIprefix\doi{10.1109/CVPR.2019.00223}.
+
+%Type = Inproceedings
+\bibitem[{Lehtinen et~al.(2018)Lehtinen, Munkberg, Hasselgren, Laine, Karras,
+  Aittala and Aila}]{lehtinen2018}
+\bibinfo{author}{Lehtinen, J.}, \bibinfo{author}{Munkberg, J.},
+  \bibinfo{author}{Hasselgren, J.}, \bibinfo{author}{Laine, S.},
+  \bibinfo{author}{Karras, T.}, \bibinfo{author}{Aittala, M.},
+  \bibinfo{author}{Aila, T.}, \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{Noise2noise: Learning image restoration without clean
+  data}, in: \bibinfo{booktitle}{Proceedings of the 35th International
+  Conference on Machine Learning}, pp. \bibinfo{pages}{2965--2974}.
+
+%Type = Article
+\bibitem[{Lones(2021)}]{lones2021}
+\bibinfo{author}{Lones, M.A.}, \bibinfo{year}{2021}.
+\newblock \bibinfo{title}{How to avoid machine learning pitfalls: a guide for
+  academic researchers}.
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2108.02497}
+  \DOIprefix\doi{10.48550/arXiv.2108.02497}.
+
+%Type = Article
+\bibitem[{Mousavi and Beroza(2022)}]{mousavi2022}
+\bibinfo{author}{Mousavi, S.M.}, \bibinfo{author}{Beroza, G.C.},
+  \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Deep-learning seismology}.
+\newblock \bibinfo{journal}{Science} \bibinfo{volume}{377},
+  \bibinfo{pages}{eabm4470}.
+\newblock \DOIprefix\doi{10.1126/science.abm4470}.
+
+%Type = Article
+\bibitem[{Munchmeyer et~al.(2022)Munchmeyer, Woollam, Rietbrock, Tilmann,
+  Lange, Bornstein, Diehl, Giunchi, Haslinger, Jozinovic, Michelini, Saul and
+  Soto}]{munchmeyer2022}
+\bibinfo{author}{Munchmeyer, J.}, \bibinfo{author}{Woollam, J.},
+  \bibinfo{author}{Rietbrock, A.}, \bibinfo{author}{Tilmann, F.},
+  \bibinfo{author}{Lange, D.}, \bibinfo{author}{Bornstein, T.},
+  \bibinfo{author}{Diehl, T.}, \bibinfo{author}{Giunchi, C.},
+  \bibinfo{author}{Haslinger, F.}, \bibinfo{author}{Jozinovic, D.},
+  \bibinfo{author}{Michelini, A.}, \bibinfo{author}{Saul, J.},
+  \bibinfo{author}{Soto, H.}, \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Which picker fits my data? {A} quantitative
+  evaluation of deep learning based seismic pickers}.
+\newblock \bibinfo{journal}{Journal of Geophysical Research: Solid Earth}
+  \bibinfo{volume}{127}, \bibinfo{pages}{e2021JB023499}.
+\newblock \DOIprefix\doi{10.1029/2021JB023499}.
+
+%Type = Misc
+\bibitem[{{Natural Earth}(2024)}]{naturalearth2024}
+\bibinfo{author}{{Natural Earth}}, \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{Natural earth 1:50m cultural vectors and physical
+  vectors}.
+\newblock \URLprefix \url{https://www.naturalearthdata.com/}.
+  \bibinfo{note}{accessed 22 June 2026}.
+
+%Type = Inproceedings
+\bibitem[{Paszke et~al.(2019)Paszke, Gross, Massa, Lerer, Bradbury, Chanan,
+  Killeen, Lin, Gimelshein, Antiga, Desmaison, Kopf, Yang, DeVito, Raison,
+  Tejani, Chilamkurthy, Steiner, Fang, Bai and Chintala}]{paszke2019}
+\bibinfo{author}{Paszke, A.}, \bibinfo{author}{Gross, S.},
+  \bibinfo{author}{Massa, F.}, \bibinfo{author}{Lerer, A.},
+  \bibinfo{author}{Bradbury, J.}, \bibinfo{author}{Chanan, G.},
+  \bibinfo{author}{Killeen, T.}, \bibinfo{author}{Lin, Z.},
+  \bibinfo{author}{Gimelshein, N.}, \bibinfo{author}{Antiga, L.},
+  \bibinfo{author}{Desmaison, A.}, \bibinfo{author}{Kopf, A.},
+  \bibinfo{author}{Yang, E.}, \bibinfo{author}{DeVito, Z.},
+  \bibinfo{author}{Raison, M.}, \bibinfo{author}{Tejani, A.},
+  \bibinfo{author}{Chilamkurthy, S.}, \bibinfo{author}{Steiner, B.},
+  \bibinfo{author}{Fang, L.}, \bibinfo{author}{Bai, J.},
+  \bibinfo{author}{Chintala, S.}, \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{{PyTorch}: an imperative style, high-performance deep
+  learning library}, in: \bibinfo{booktitle}{Advances in Neural Information
+  Processing Systems}, volume \bibinfo{volume}{32}, pp. \bibinfo{pages}{8024--8035}.
+
+%Type = Article
+\bibitem[{Pineau et~al.(2021)Pineau, Vincent-Lamarre, Sinha, Lariviere,
+  Beygelzimer, d'Alche Buc, Fox and Larochelle}]{pineau2021}
+\bibinfo{author}{Pineau, J.}, \bibinfo{author}{Vincent-Lamarre, P.},
+  \bibinfo{author}{Sinha, K.}, \bibinfo{author}{Lariviere, V.},
+  \bibinfo{author}{Beygelzimer, A.}, \bibinfo{author}{d'Alche Buc, F.},
+  \bibinfo{author}{Fox, E.}, \bibinfo{author}{Larochelle, H.},
+  \bibinfo{year}{2021}.
+\newblock \bibinfo{title}{Improving reproducibility in machine learning
+  research: a report from the {NeurIPS} 2019 reproducibility program}.
+\newblock \bibinfo{journal}{Journal of Machine Learning Research}
+  \bibinfo{volume}{22}, \bibinfo{pages}{1--20}.
+
+%Type = Misc
+\bibitem[{{Raspberry Shake, S.A.}(2016)}]{raspberryshake2016}
+\bibinfo{author}{{Raspberry Shake, S.A.}}, \bibinfo{year}{2016}.
+\newblock \bibinfo{title}{{Raspberry Shake} [data set]}.
+\newblock \DOIprefix\doi{10.7914/SN/AM}. \bibinfo{note}{accessed 22 June 2026}.
+
+%Type = Article
+\bibitem[{Vidale(1986)}]{vidale1986}
+\bibinfo{author}{Vidale, J.E.}, \bibinfo{year}{1986}.
+\newblock \bibinfo{title}{Complex polarization analysis of particle motion}.
+\newblock \bibinfo{journal}{Bulletin of the Seismological Society of America}
+  \bibinfo{volume}{76}, \bibinfo{pages}{1393--1405}.
+\newblock \DOIprefix\doi{10.1785/BSSA0760051393}.
+
+%Type = Article
+\bibitem[{Woollam et~al.(2022)Woollam, Munchmeyer, Tilmann, Rietbrock, Lange,
+  Bornstein, Diehl, Giunchi, Haslinger, Jozinovic, Michelini, Saul and
+  Soto}]{woollam2022}
+\bibinfo{author}{Woollam, J.}, \bibinfo{author}{Munchmeyer, J.},
+  \bibinfo{author}{Tilmann, F.}, \bibinfo{author}{Rietbrock, A.},
+  \bibinfo{author}{Lange, D.}, \bibinfo{author}{Bornstein, T.},
+  \bibinfo{author}{Diehl, T.}, \bibinfo{author}{Giunchi, C.},
+  \bibinfo{author}{Haslinger, F.}, \bibinfo{author}{Jozinovic, D.},
+  \bibinfo{author}{Michelini, A.}, \bibinfo{author}{Saul, J.},
+  \bibinfo{author}{Soto, H.},
+  \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{{SeisBench}: a toolbox for machine learning in
+  seismology}.
+\newblock \bibinfo{journal}{Seismological Research Letters}
+  \bibinfo{volume}{93}, \bibinfo{pages}{1695--1709}.
+\newblock \DOIprefix\doi{10.1785/0220210324}.
+
+%Type = Article
+\bibitem[{Yang et~al.(2022)Yang, Liu, Zhu, Zhao and Beroza}]{yang2022}
+\bibinfo{author}{Yang, L.}, \bibinfo{author}{Liu, X.},
+  \bibinfo{author}{Zhu, W.}, \bibinfo{author}{Zhao, L.},
+  \bibinfo{author}{Beroza, G.C.}, \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Toward improved urban earthquake monitoring through
+  deep-learning-based noise suppression}.
+\newblock \bibinfo{journal}{Science Advances} \bibinfo{volume}{8},
+  \bibinfo{pages}{eabl3564}.
+\newblock \DOIprefix\doi{10.1126/sciadv.abl3564}.
+
+%Type = Article
+\bibitem[{Zhu et~al.(2019)Zhu, Mousavi and Beroza}]{zhu2019}
+\bibinfo{author}{Zhu, W.}, \bibinfo{author}{Mousavi, S.M.},
+  \bibinfo{author}{Beroza, G.C.}, \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Seismic signal denoising and decomposition using deep
+  neural networks}.
+\newblock \bibinfo{journal}{IEEE Transactions on Geoscience and Remote Sensing}
+  \bibinfo{volume}{57}, \bibinfo{pages}{9476--9488}.
+\newblock \DOIprefix\doi{10.1109/TGRS.2019.2926772}.
+
+\end{thebibliography}
+
+
+\end{document}

@@ -1,0 +1,3 @@
+analysis,replicate_storage,replicates,seed_base,reason
+regression_adjusted_and_matched,summary_only,1000,20260611,"Full replicate draws are deterministic from frozen inputs, script, method, metric, and seed; compact summary prevents unnecessary repository growth."
+unadjusted,summary_only,20000,20260611,Table 10 unadjusted source already stores percentile intervals; this script recomputes them from station means for closure auditing.

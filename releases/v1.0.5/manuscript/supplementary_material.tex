@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\section*{Supplementary Material}
+
+\subsection*{Complete model, training, masking, selection, and inference configuration}
+This table consolidates the executable configuration facts that are otherwise distributed across scripts, frozen manifests, and generated result metadata. Entries marked by their source artifact are audit records rather than new experimental settings.
+
+{\scriptsize
+\input{generated_tables/table_model_training_configuration.tex}
+}
+
+\subsection*{Analysis timeline, status, scoring basis/category, and provenance}
+The analyses include both frozen comparisons and author-initiated post-hoc diagnostics. Their timing, inferential role, scoring basis/category, and public provenance are summarized here to separate primary report-card evidence from sensitivity and self-audit outputs.
+
+{\scriptsize
+\input{generated_tables/table_analysis_timeline.tex}
+}
+
+\subsection*{Tapered versus no-taper target sensitivity}
+The no-taper evaluator-held pseudo-clean references are primary for the main controlled-mixture report-card basis. Submitted tapered targets are retained as a sensitivity analysis.
+
+\subsection*{SNR-stratified controlled-mixture report}
+The following station-equal estimates use the same frozen no-taper per-case artifacts as the main controlled-mixture report-card basis. Clean-SNR is reported as gain relative to the identity/noisy-input baseline for the matched case; amplitude ratio, waveform correlation, and background suppression are absolute method scores under the evaluator-held pseudo-clean construction.
+
+\scriptsize
+\resizebox{\linewidth}{!}{\input{generated_tables/table_snr_stratified_report.tex}}
+\normalsize
+
+\subsection*{Bootstrap replicate sensitivity}
+\resizebox{\linewidth}{!}{\input{generated_tables/tableS_bootstrap_robustness_summary.tex}}
+
+\subsection*{Component-wise waveform-correlation audit}
+Component-wise Z/N/E correlations were computed on the same 816 controlled cases used for the target-property rescoring audit. These descriptive means are supplementary audit outputs and are not used to rank methods in the main text.
+
+\resizebox{\linewidth}{!}{\input{generated_tables/supp_component_correlation_audit.tex}}
+
+\subsection*{Development composition sensitivity}
+\resizebox{\linewidth}{!}{\input{generated_tables/supp_dev_composition.tex}}
+
+\subsection*{No-taper E3 station-familiarity/domain-shift closure}
+The following tables report the reconstructed no-taper E3 confounding closure. The adjustment model is ordinary least squares for each method--metric outcome with an intercept, a familiar-versus-unseen group indicator, and z-scored covariates for target SNR, log10 injection-window noise RMS, dominant 1--20 Hz frequency, 1--20 Hz spectral slope, log10 high/low bandpower ratio, and 4 s frame-RMS coefficient of variation. Matching uses prespecified greedy 1:1 nearest neighbors without replacement on standardized station-level noise RMS, dominant frequency, spectral slope, and 4 s frame-RMS variation, with Euclidean distance, caliper 2.5, and deterministic station-name tie breaking. The matching retained all 15 familiar stations and 15 of 33 unseen stations, forming 15 matched pairs, but did not improve the worst-case covariate balance: the maximum absolute standardized mean difference increased from 0.479 before matching to 0.555 after matching because of residual imbalance in noise RMS. The matched estimates are therefore a limited-overlap secondary sensitivity analysis rather than definitive deconfounded effects and are reported separately from the regression-adjusted sensitivity estimates. Regression and matched sensitivity intervals use station bootstrap with B=1,000 and seed 20260611.
+
+\subsection*{No-taper E3 pre/post matching balance}
+\resizebox{\linewidth}{!}{\input{generated_tables/supp_station_leakage_balance.tex}}
+
+\subsection*{No-taper E3 regression-adjusted sensitivity}
+\resizebox{\linewidth}{!}{\input{generated_tables/supp_e3_no_taper_regression_adjusted.tex}}
+
+\subsection*{No-taper E3 matched-station sensitivity}
+\resizebox{\linewidth}{!}{\input{generated_tables/supp_e3_no_taper_matched.tex}}
+
+\subsection*{No-taper E3 retained station pairs}
+\resizebox{0.8\linewidth}{!}{\input{generated_tables/supp_e3_no_taper_matching_pairs.tex}}
+
+\subsection*{No-taper E3 direction and zero-exclusion audit}
+\resizebox{\linewidth}{!}{\input{generated_tables/supp_e3_no_taper_direction_audit.tex}}
+
+\subsection*{Historical tapered versus reconstructed no-taper E3 support comparison}
+This supporting comparison is not a decomposition of taper effects. The reconstructed no-taper E3 diagnostic is not a historical sample-identical rerun; the table compares signs and evidence grades for provenance only.
+
+\resizebox{\linewidth}{!}{\input{generated_tables/table_e3_tapered_notaper_audit_comparison.tex}}
+
+\subsection*{Wiener-blind nine-configuration sensitivity envelope}
+\resizebox{\linewidth}{!}{\input{generated_tables/supp_wiener_sensitivity.tex}}
+
+\subsection*{Bootstrap implementation and target-definition sensitivity}
+Primary station-level inference resamples stations with equal station weighting, within-station mean aggregation, B=20,000 percentile 95\% intervals, seed 20260611, and matched complete cases. Diagnostic exceptions are the leakage independent-station bootstrap, the B=5,000 target-property and recovery-probe diagnostic intervals, and the reference-level target-validation bootstrap. The target-definition sensitivity check identified the submitted P-onset taper as a sensitivity factor inside the metric window; no-taper targets are primary for the main controlled-mixture report-card basis.
+
+The event-template audit confirmed that each final event template belongs to a single event-template station and that the -5, 0, and +5 dB realizations remain in that station cluster. A separate noise-window audit found reused or non-template-station noise windows across some clusters. The station bootstrap therefore targets equal-weight paired performance across the observed event-template stations and does not claim to remove every possible cross-station dependence induced by shared noise inputs.
+
+\subsection*{Legacy filename mapping}
+\resizebox{\linewidth}{!}{\input{generated_tables/table_legacy_name_mapping.tex}}
+
+\subsection*{FDSN retrieval and raw-waveform availability}
+The public release contains station lists, time-window indices, request metadata, and download scripts, but it does not redistribute raw MiniSEED files. No complete end-to-end redownload success-rate log is claimed in the manuscript. Future waveform reacquisition may be affected by changes in FDSN holdings or station metadata; missing requests are handled according to the released QC and skipping rules.
+
+\end{document}

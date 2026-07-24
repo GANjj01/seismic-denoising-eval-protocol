@@ -1,0 +1,5 @@
+metric,direction_consistent,n_rows,suggestive_rows
+output_vs_clean_snr,7,8,1
+amp_ratio_clean,8,8,0
+corr_z,8,8,0
+background_suppression_db,7,8,1

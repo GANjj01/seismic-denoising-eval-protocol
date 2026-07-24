@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this release package, please cite the archived software record and the associated manuscript."
+title: "seismic-denoising-eval-protocol"
+version: 1.0.5
+authors:
+  - family-names: Gan
+    given-names: Jiajing
+  - family-names: Takemura
+    given-names: Takato
+repository-code: "https://github.com/GANjj01/seismic-denoising-eval-protocol"
+license: MIT
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.20681569"
+    description: "Zenodo concept DOI for all versions; not a version-specific v1.0.5 DOI."

@@ -1,0 +1,38 @@
+\begin{tabular}{llllr}
+\toprule
+Method & Metric & Adjusted A--B & 95\% CI & Excludes 0 \\
+\midrule
+Bandpass & output\_vs\_clean\_snr & +0.369 & [-0.181, +1.184] & false \\
+Bandpass & amp\_ratio\_clean & +0.267 & [-0.149, +0.788] & false \\
+Bandpass & corr\_z & +0.022 & [-0.041, +0.068] & false \\
+Bandpass & background\_suppression\_db & +0.238 & [-0.286, +0.908] & false \\
+DeepDenoiser & output\_vs\_clean\_snr & +0.686 & [+0.241, +1.134] & true \\
+DeepDenoiser & amp\_ratio\_clean & +0.166 & [+0.074, +0.254] & true \\
+DeepDenoiser & corr\_z & +0.049 & [-0.009, +0.103] & false \\
+DeepDenoiser & background\_suppression\_db & -0.060 & [-2.345, +2.042] & false \\
+Noisy & output\_vs\_clean\_snr & +0.000 & [-0.000, +0.000] & false \\
+Noisy & amp\_ratio\_clean & +0.451 & [-0.029, +1.085] & false \\
+Noisy & corr\_z & +0.003 & [-0.058, +0.053] & false \\
+Noisy & background\_suppression\_db & +0.000 & [-0.000, +0.000] & false \\
+Wiener\_blind & output\_vs\_clean\_snr & +0.578 & [+0.253, +0.919] & true \\
+Wiener\_blind & amp\_ratio\_clean & +0.377 & [+0.005, +0.880] & true \\
+Wiener\_blind & corr\_z & +0.029 & [-0.032, +0.081] & false \\
+Wiener\_blind & background\_suppression\_db & +0.299 & [-0.030, +0.555] & false \\
+Wiener\_oracle & output\_vs\_clean\_snr & +2.521 & [+1.626, +3.320] & true \\
+Wiener\_oracle & amp\_ratio\_clean & +0.139 & [+0.061, +0.201] & true \\
+Wiener\_oracle & corr\_z & +0.069 & [+0.028, +0.107] & true \\
+Wiener\_oracle & background\_suppression\_db & +0.195 & [-0.742, +1.011] & false \\
+p01\_e07 & output\_vs\_clean\_snr & -0.222 & [-0.403, -0.012] & true \\
+p01\_e07 & amp\_ratio\_clean & +0.225 & [-0.105, +0.598] & false \\
+p01\_e07 & corr\_z & -0.031 & [-0.075, +0.011] & false \\
+p01\_e07 & background\_suppression\_db & -0.439 & [-0.934, +0.174] & false \\
+p05\_e16 & output\_vs\_clean\_snr & -0.249 & [-0.457, -0.034] & true \\
+p05\_e16 & amp\_ratio\_clean & +0.269 & [-0.031, +0.616] & false \\
+p05\_e16 & corr\_z & -0.041 & [-0.083, -0.004] & true \\
+p05\_e16 & background\_suppression\_db & -0.337 & [-0.858, +0.371] & false \\
+p0\_e06 & output\_vs\_clean\_snr & -0.258 & [-0.451, -0.030] & true \\
+p0\_e06 & amp\_ratio\_clean & +0.170 & [-0.173, +0.539] & false \\
+p0\_e06 & corr\_z & -0.031 & [-0.076, +0.006] & false \\
+p0\_e06 & background\_suppression\_db & -0.577 & [-1.209, +0.184] & false \\
+\bottomrule
+\end{tabular}
