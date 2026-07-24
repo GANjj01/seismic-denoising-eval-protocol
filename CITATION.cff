@@ -3,10 +3,11 @@ message: "If you use this evaluation protocol, please cite the software release 
 title: "A Reproducible Evaluation Protocol for Self-Supervised Three-Component Blind-Spot Seismic Denoising: Evaluation Protocol Artifacts"
 version: "1.0.5"
 date-released: "2026-07-24"
+doi: "10.5281/zenodo.21533969"
 identifiers:
   - type: doi
     value: "10.5281/zenodo.20681569"
-    description: "Zenodo concept DOI for all versions; the version-specific v1.0.5 DOI is assigned after archival."
+    description: "Zenodo concept DOI for all versions."
 authors:
   - family-names: "Gan"
     given-names: "Jiajing"

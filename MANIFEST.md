@@ -2,12 +2,12 @@
 
 Version: v1.0.5.
 
-The v1.0.5 manuscript-matched release package is staged in
+The v1.0.5 manuscript-matched release package is available in
 `releases/v1.0.5/` and does not overwrite the preserved v1.0.4 tag or release.
-The public GitHub Release will use
+The public GitHub Release is
 <https://github.com/GANjj01/seismic-denoising-eval-protocol/releases/tag/v1.0.5>.
-The v1.0.5 Zenodo version DOI will be assigned after archival; the project
-concept DOI is <https://doi.org/10.5281/zenodo.20681569>.
+The v1.0.5 Zenodo version DOI is <https://doi.org/10.5281/zenodo.21533969>;
+the project concept DOI is <https://doi.org/10.5281/zenodo.20681569>.
 
 ## Reusable Protocol Code
 

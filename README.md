@@ -10,12 +10,13 @@ and terms.
 
 Version: v1.0.5.
 
-The manuscript-matched v1.0.5 package has been staged in this repository and
-is prepared for the GitHub Release:
+The manuscript-matched v1.0.5 package is available from the GitHub Release:
 
 https://github.com/GANjj01/seismic-denoising-eval-protocol/releases/tag/v1.0.5
 
-The v1.0.5 Zenodo version DOI will be assigned after archival.
+The v1.0.5 Zenodo version DOI is:
+
+https://doi.org/10.5281/zenodo.21533969
 
 The project concept DOI, which resolves to the complete version history, is:
 
@@ -195,8 +196,9 @@ are public under `training/`.
 This repository is archived on Zenodo under the concept DOI
 [`10.5281/zenodo.20681569`](https://doi.org/10.5281/zenodo.20681569).
 
-Each versioned release is preserved as a separate Zenodo record. The v1.0.5
-version DOI will be assigned by Zenodo after archival. For exact reproduction
-of the preserved manuscript-matched v1.0.4 materials, cite the version DOI
+Each versioned release is preserved as a separate Zenodo record. For exact
+reproduction of the manuscript-matched v1.0.5 materials, cite the version DOI
+[`10.5281/zenodo.21533969`](https://doi.org/10.5281/zenodo.21533969). For exact
+reproduction of the preserved manuscript-matched v1.0.4 materials, cite the version DOI
 [`10.5281/zenodo.21516779`](https://doi.org/10.5281/zenodo.21516779). The
 concept DOI provides access to the complete version history.
